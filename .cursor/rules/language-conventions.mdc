@@ -1,116 +1,206 @@
 ---
-description: Language conventions - All code and documentation must be in English
+description: Language conventions - Code in English, UI in Spanish (LATAM)
 alwaysApply: true
 ---
 
 # Language Conventions
 
-> **Rule**: ALL code, documentation, and comments MUST be in English
+> **Rule**: Code in ENGLISH, User Interface in SPANISH (LATAM target audience)
 
-## Code Language
+## Two-Layer Language Strategy
+
+| Layer | Language | Examples |
+|-------|----------|----------|
+| **Code** | English | Variables, functions, comments, files, JSDoc |
+| **UI** | Spanish | Labels, buttons, messages, placeholders, titles |
+
+---
+
+## CODE LAYER (English)
+
+### Variables and Functions
 
 ```tsx
-// ✅ GOOD: English everywhere
+// ✅ GOOD: English code
 const appointmentDate = new Date();
 const isAvailable = checkAvailability(slot);
-function handleBookingSubmit() { /* ... */ }
-
-// ❌ BAD: Other languages in code
-const fechaCita = new Date();
-const estaDisponible = verificarDisponibilidad(slot);
-function manejarEnvioReserva() { /* ... */ }
-```
-
-## Variable and Function Names
-
-```tsx
-// ✅ GOOD
-const professionalList = [];
-const userProfile = {};
-function calculateTotalPrice() {}
+function handleBookingSubmit() {}
 function validateAppointment() {}
 
-// ❌ BAD
-const listaProfesionales = [];
-const perfilUsuario = {};
-function calcularPrecioTotal() {}
-function validarCita() {}
+// ❌ BAD: Spanish code
+const fechaCita = new Date();
+function manejarEnvioReserva() {}
 ```
 
-## Comments
+### Comments and Documentation
 
 ```tsx
 // ✅ GOOD: English comments
 // Check if the slot is available before booking
-// This handles the edge case where...
 
-// ❌ BAD: Non-English comments
-// Verificar si el slot está disponible
-// Esto maneja el caso especial donde...
-```
-
-## Error Messages and UI Text
-
-```tsx
-// ✅ GOOD: English in code, i18n for user-facing text
-throw new Error('Invalid appointment date');
-console.error('Failed to fetch professionals');
-
-// For user-facing text, use translation keys
-const ERROR_MESSAGES = {
-  INVALID_DATE: 'Invalid appointment date',
-  FETCH_FAILED: 'Failed to load data',
-};
-```
-
-## Documentation
-
-```tsx
 /**
- * ✅ GOOD: JSDoc in English
  * Fetches available time slots for a professional
  * @param professionalId - The professional's unique identifier
- * @returns Array of available time slots
  */
 function getAvailableSlots(professionalId: string) {}
 
-/**
- * ❌ BAD: JSDoc in other language
- * Obtiene los horarios disponibles para un profesional
- * @param idProfesional - Identificador único del profesional
- */
+// ❌ BAD: Spanish comments
+// Verificar si el slot está disponible
 ```
 
-## File and Folder Names
+### File and Folder Names
 
 ```tsx
 // ✅ GOOD
 features/appointments/
 components/BookingCard.tsx
 hooks/useAvailability.ts
-shared/dtos/professional.dto.ts
 
 // ❌ BAD
 features/citas/
 components/TarjetaReserva.tsx
-hooks/useDisponibilidad.ts
-shared/dtos/profesional.dto.ts
 ```
 
-## Git Commits
+### Console and Error Logs
+
+```tsx
+// ✅ GOOD: Internal errors in English
+throw new Error('Invalid appointment date');
+console.error('Failed to fetch professionals');
+```
+
+### Git Commits
 
 ```bash
 # ✅ GOOD
 git commit -m "feat: add appointment booking flow"
-git commit -m "fix: resolve availability slot overlap"
 
 # ❌ BAD
 git commit -m "feat: agregar flujo de reserva de citas"
 ```
 
-## Why English?
+---
 
-1. **Industry standard** - Most libraries, docs, and resources are in English
-2. **Team collaboration** - Enables working with international teams
-3. **Code consistency** - Mixing languages creates cognitive overhead
-4. **Tooling support** - Better autocomplete, linting, and AI assistance
+## UI LAYER (Spanish - LATAM)
+
+### User-Facing Text
+
+```tsx
+// ✅ GOOD: Spanish for users
+<Button>Reservar cita</Button>
+<h1>Buscar profesionales</h1>
+<p>Selecciona un horario disponible</p>
+
+// ❌ BAD: English for LATAM users
+<Button>Book appointment</Button>
+<h1>Search professionals</h1>
+```
+
+### Form Labels and Placeholders
+
+```tsx
+// ✅ GOOD: Spanish labels
+<Input 
+  label="Correo electrónico"
+  placeholder="tu@correo.com"
+/>
+<Input 
+  label="Contraseña"
+  placeholder="Ingresa tu contraseña"
+/>
+
+// ❌ BAD: English labels for LATAM
+<Input label="Email" placeholder="your@email.com" />
+```
+
+### Validation Messages
+
+```tsx
+// ✅ GOOD: Spanish user messages
+const validationMessages = {
+  required: 'Este campo es obligatorio',
+  invalidEmail: 'Ingresa un correo válido',
+  minLength: 'Mínimo 8 caracteres',
+};
+
+// In Zod schemas
+email: z.string()
+  .min(1, 'El correo es obligatorio')
+  .email('Correo electrónico inválido'),
+```
+
+### Alerts and Notifications
+
+```tsx
+// ✅ GOOD: Spanish for users
+<Alert>Tu cita ha sido reservada exitosamente</Alert>
+<Toast>Error al cargar los datos. Intenta de nuevo.</Toast>
+```
+
+### Page Titles and Headings
+
+```tsx
+// ✅ GOOD
+<title>Reservar Cita | Booking Platform</title>
+<h1>Iniciar sesión</h1>
+<h2>Horarios disponibles</h2>
+```
+
+---
+
+## Practical Example
+
+```tsx
+// ✅ CORRECT: English code, Spanish UI
+function LoginForm() {
+  // English: variable names, comments
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Handle form submission
+  const handleSubmit = async (data: LoginFormData) => {
+    setIsLoading(true);
+    try {
+      await login(data);
+    } catch (error) {
+      // English: console logs
+      console.error('Login failed:', error);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* Spanish: user-facing text */}
+      <h1>Iniciar sesión</h1>
+      
+      <Input
+        label="Correo electrónico"
+        placeholder="tu@correo.com"
+        {...register('email')}
+      />
+      {errors.email && (
+        <p>Ingresa un correo válido</p>
+      )}
+      
+      <Button disabled={isLoading}>
+        {isLoading ? 'Cargando...' : 'Ingresar'}
+      </Button>
+    </form>
+  );
+}
+```
+
+---
+
+## Summary
+
+| What | Language | Reason |
+|------|----------|--------|
+| Variable names | English | Code consistency, tooling |
+| Function names | English | Industry standard |
+| Comments | English | Developer documentation |
+| File names | English | Codebase navigation |
+| Git commits | English | Collaboration |
+| Console logs | English | Debugging |
+| **UI text** | **Spanish** | **LATAM target users** |
+| **Labels** | **Spanish** | **LATAM target users** |
+| **Messages** | **Spanish** | **LATAM target users** |
