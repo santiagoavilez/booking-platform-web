@@ -1,0 +1,52 @@
+---
+description: Folder structure and file placement guidelines
+alwaysApply: true
+---
+
+# Folder Structure
+
+## Main Tree
+
+```
+src/
+├── app/                    # Global setup (providers, router, guards)
+├── features/               # Feature-based modules (auth, professionals, etc.)
+├── components/             # Reusable UI (shadcn, layout)
+├── services/               # API client, external services
+├── shared/                 # Types, enums, DTOs, constants
+└── lib/                    # Utilities (cn, helpers)
+```
+
+## Where Does My File Go?
+
+| File Type | Location | Example |
+|-----------|----------|---------|
+| Page/View | `features/[feature]/pages/` | `features/auth/pages/LoginPage.tsx` |
+| Feature hook | `features/[feature]/hooks.ts` | `features/professionals/hooks.ts` |
+| Feature API | `features/[feature]/api.ts` | `features/appointments/api.ts` |
+| Feature component | `features/[feature]/components/` | `features/availability/components/TimeSlot.tsx` |
+| Generic UI component | `components/ui/` | `components/ui/button.tsx` |
+| Layout component | `components/layout/` | `components/layout/Navbar.tsx` |
+| Global provider | `app/providers/` | `app/providers/auth.provider.tsx` |
+| Guard | `app/guards/` | `app/guards/auth.guard.tsx` |
+| Type/DTO | `shared/dtos/` | `shared/dtos/user.dto.ts` |
+| Enum | `shared/enums/` | `shared/enums/roles.enum.ts` |
+| Constant | `shared/constants/` | `shared/constants/api.constants.ts` |
+| Utility | `lib/` | `lib/utils.ts` |
+
+## Main Features
+
+```
+features/
+├── auth/              # Login, registration, authentication
+├── professionals/     # Listing, profile, professional search
+├── availability/      # Available schedule management
+└── appointments/      # Appointment booking and management
+```
+
+## Naming Rules
+
+- **Pages**: `PascalCase` with `Page` suffix → `LoginPage.tsx`
+- **Components**: `PascalCase` → `TimeSlot.tsx`
+- **Hooks**: `camelCase` with `use` prefix → `useAuth.ts`
+- **Utils/Services**: `kebab-case` → `api-client.ts`

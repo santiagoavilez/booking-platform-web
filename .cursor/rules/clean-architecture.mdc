@@ -1,0 +1,91 @@
+---
+description: Clean Architecture adapted for React Frontend
+alwaysApply: true
+---
+
+# Clean Architecture - Frontend
+
+## Architecture Layers
+
+```
+┌─────────────────────────────────────┐
+│           UI (Components)           │  ← React Components, Pages
+├─────────────────────────────────────┤
+│         Application (Hooks)         │  ← Custom Hooks, State
+├─────────────────────────────────────┤
+│          Domain (Models)            │  ← Types, Interfaces, DTOs
+├─────────────────────────────────────┤
+│      Infrastructure (Services)      │  ← API Client, External Services
+└─────────────────────────────────────┘
+```
+
+## Mapping to Folder Structure
+
+| Layer | Folder | Responsibility |
+|-------|--------|----------------|
+| UI | `features/*/pages/`, `components/` | Rendering, user interaction |
+| Application | `features/*/hooks.ts` | Business logic, orchestration |
+| Domain | `shared/dtos/`, `shared/enums/` | Models, interfaces, rules |
+| Infrastructure | `services/`, `features/*/api.ts` | External communication |
+
+## Data Flow
+
+```
+UI Component
+    ↓ calls
+Custom Hook (useFeature)
+    ↓ uses
+API Service (feature/api.ts)
+    ↓ fetches via
+API Client (services/api-client.ts)
+    ↓ returns
+Typed DTO
+    ↑ updates
+React Query Cache
+    ↑ renders
+UI Component
+```
+
+## Practical Example
+
+```tsx
+// 1. Domain - shared/dtos/professional.dto.ts
+interface ProfessionalDTO {
+  id: string;
+  name: string;
+  specialty: string;
+}
+
+// 2. Infrastructure - features/professionals/api.ts
+export const professionalsApi = {
+  getAll: () => apiClient.get<ProfessionalDTO[]>('/professionals'),
+  getById: (id: string) => apiClient.get<ProfessionalDTO>(`/professionals/${id}`),
+};
+
+// 3. Application - features/professionals/hooks.ts
+export function useProfessionals() {
+  return useQuery({
+    queryKey: ['professionals'],
+    queryFn: professionalsApi.getAll,
+  });
+}
+
+// 4. UI - features/professionals/pages/ProfessionalsPage.tsx
+export function ProfessionalsPage() {
+  const { data, isLoading } = useProfessionals();
+  return <ProfessionalList items={data} />;
+}
+```
+
+## Dependency Rule
+
+```
+UI → Application → Domain ← Infrastructure
+         ↓            ↓
+      Domain       Domain
+```
+
+- **UI** only imports from Application and Domain
+- **Application** only imports from Infrastructure and Domain
+- **Infrastructure** only imports from Domain
+- **Domain** does NOT import from any other layer

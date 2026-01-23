@@ -1,0 +1,82 @@
+---
+description: KISS Principle - Keep It Simple, Stupid
+alwaysApply: true
+---
+
+# KISS Principle
+
+> **Keep It Simple, Stupid** - Simplicity is the ultimate sophistication
+
+## Simplicity Rules
+
+### 1. Small Functions
+
+```tsx
+// ❌ BAD: Function that does too much
+function processUserData(user) {
+  // 50+ lines of validation, transformation, formatting...
+}
+
+// ✅ GOOD: Small, focused functions
+function validateUser(user) { /* 5-10 lines */ }
+function transformUser(user) { /* 5-10 lines */ }
+function formatUserDisplay(user) { /* 5-10 lines */ }
+```
+
+### 2. Avoid Premature Abstraction
+
+```tsx
+// ❌ BAD: Over-engineering for one case
+const UserFactory = createFactory(UserBuilder, UserValidator, UserTransformer);
+
+// ✅ GOOD: Direct solution
+const user = { name, email, role };
+```
+
+### 3. Clear Names > Comments
+
+```tsx
+// ❌ BAD
+const d = 86400; // seconds in a day
+
+// ✅ GOOD
+const SECONDS_PER_DAY = 86400;
+```
+
+### 4. Simple Composition
+
+```tsx
+// ❌ BAD: Nested HOCs
+export default withAuth(withTheme(withLoading(withError(MyComponent))));
+
+// ✅ GOOD: Hooks and clear composition
+function MyComponent() {
+  const { user } = useAuth();
+  const { theme } = useTheme();
+  const { isLoading, error } = useData();
+  // ...
+}
+```
+
+## Complexity Warning Signs
+
+- ⚠️ More than 3 levels of nesting
+- ⚠️ More than 5 parameters in a function
+- ⚠️ Components over 150 lines
+- ⚠️ More than 15 module imports
+- ⚠️ Conditionals with more than 3 branches
+
+## Ask Yourself
+
+1. Can a junior understand this in 5 minutes?
+2. Is there a more direct way to do this?
+3. Am I solving a problem that doesn't exist yet?
+4. Can I remove code without losing functionality?
+
+## MVP Mindset
+
+For this MVP project:
+- **Yes**: Basic functionality that works
+- **No**: Premature optimizations
+- **No**: Features outside scope
+- **No**: "Just in case" abstractions

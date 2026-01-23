@@ -1,0 +1,45 @@
+---
+description: Main project guide - READ FIRST before any development
+alwaysApply: true
+---
+
+# Project Approach - Booking Platform Web
+
+> ⚠️ **READ THIS FIRST** before writing any code
+
+## Project Context
+
+Appointment booking system for professionals (psychologists, psychiatrists, therapists, lawyers).
+Functional MVP prioritizing **simplicity**, **architectural clarity**, and **future extensibility**.
+
+## Tech Stack
+
+- **Framework**: React 18 + TypeScript
+- **Build**: Vite
+- **Styles**: Tailwind CSS v4 (Mobile-First)
+- **UI**: shadcn/ui
+- **Package Manager**: pnpm
+
+## Core Principles
+
+1. **Mobile-First** → Design for mobile first, scale up to desktop
+2. **Clean Architecture** → Separate domain, use cases, and infrastructure
+3. **SOLID** → Modular and extensible code
+4. **KISS** → Simple is better than complex
+
+## Workflow
+
+```
+1. Review relevant rules
+2. Identify the feature/component
+3. Place file according to folder-structure.mdc
+4. Implement following the principles
+5. Verify mobile-first compliance
+```
+
+## Quick Reference
+
+- **Where does my file go?** → `folder-structure.mdc`
+- **Can I import from here?** → `dependencies.mdc`
+- **Is it mobile-first?** → `mobile-first.mdc`
+- **Does it follow Clean Architecture?** → `clean-architecture.mdc`

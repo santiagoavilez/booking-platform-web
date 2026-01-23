@@ -1,0 +1,136 @@
+---
+description: State management patterns in React
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# State Management
+
+## State Hierarchy
+
+```
+1. Local state (useState)      → Component UI state
+2. Derived state               → Calculated from other state
+3. React Query                 → Server state (async)
+4. Context                     → Global UI state
+5. URL State                   → State in the URL
+```
+
+## Which State Type to Use?
+
+| Need | Solution |
+|------|----------|
+| Toggle, local input | `useState` |
+| Calculated data | Derived variable |
+| API data | React Query |
+| Authenticated user | Context + React Query |
+| Theme, language | Context |
+| Filters, pagination | URL params |
+
+## Local State (useState)
+
+```tsx
+// ✅ GOOD: Simple UI state
+function Modal() {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  return (
+    <>
+      <Button onClick={() => setIsOpen(true)}>Open</Button>
+      {isOpen && <Dialog onClose={() => setIsOpen(false)} />}
+    </>
+  );
+}
+```
+
+## Derived State
+
+```tsx
+// ✅ GOOD: Derive instead of sync
+function Cart({ items }: { items: CartItem[] }) {
+  // Derived, not separate state
+  const total = items.reduce((sum, item) => sum + item.price, 0);
+  const isEmpty = items.length === 0;
+  
+  return <div>Total: ${total}</div>;
+}
+```
+
+## React Query (Server State)
+
+```tsx
+// features/professionals/hooks.ts
+export function useProfessionals(filters?: ProfessionalFilters) {
+  return useQuery({
+    queryKey: ['professionals', filters],
+    queryFn: () => professionalsApi.getAll(filters),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+export function useCreateAppointment() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: appointmentsApi.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+    },
+  });
+}
+```
+
+## Context (Global UI State)
+
+```tsx
+// app/providers/auth.provider.tsx
+interface AuthContextValue {
+  user: User | null;
+  isAuthenticated: boolean;
+  login: (credentials: LoginDTO) => Promise<void>;
+  logout: () => void;
+}
+
+const AuthContext = createContext<AuthContextValue | null>(null);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  
+  const value = useMemo(() => ({
+    user,
+    isAuthenticated: !!user,
+    login: async (credentials) => { /* ... */ },
+    logout: () => setUser(null),
+  }), [user]);
+  
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuth must be within AuthProvider');
+  return context;
+}
+```
+
+## URL State
+
+```tsx
+// For filters, pagination, etc.
+function ProfessionalsList() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const specialty = searchParams.get('specialty') || '';
+  const page = Number(searchParams.get('page')) || 1;
+  
+  const updateFilters = (newFilters: Partial<Filters>) => {
+    setSearchParams(prev => {
+      Object.entries(newFilters).forEach(([key, value]) => {
+        if (value) prev.set(key, String(value));
+        else prev.delete(key);
+      });
+      return prev;
+    });
+  };
+}
+```

@@ -1,0 +1,108 @@
+---
+description: SOLID principles applied to React/TypeScript
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# SOLID Principles for Frontend
+
+## S - Single Responsibility
+
+A component/hook/function should have ONE reason to change.
+
+```tsx
+// ❌ BAD: Does too many things
+function UserCard({ userId }) {
+  const [user, setUser] = useState(null);
+  useEffect(() => { fetchUser(userId).then(setUser) }, [userId]);
+  const handleEdit = () => { /* edit logic */ };
+  return <div>...</div>;
+}
+
+// ✅ GOOD: Separation of concerns
+function UserCard({ user, onEdit }) {
+  return <div>...</div>;  // Only renders
+}
+
+function useUser(userId) {
+  return useQuery(['user', userId], () => fetchUser(userId));
+}
+```
+
+## O - Open/Closed
+
+Open for extension, closed for modification.
+
+```tsx
+// ✅ GOOD: Extensible component via props
+interface ButtonProps {
+  variant?: 'primary' | 'secondary' | 'danger';
+  size?: 'sm' | 'md' | 'lg';
+  children: ReactNode;
+}
+
+function Button({ variant = 'primary', size = 'md', children }: ButtonProps) {
+  return <button className={cn(variants[variant], sizes[size])}>{children}</button>;
+}
+```
+
+## L - Liskov Substitution
+
+Child components should be substitutable for their parents.
+
+```tsx
+// ✅ GOOD: Specialized input extends base behavior
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label?: string;
+}
+
+function Input({ label, ...props }: InputProps) {
+  return (
+    <div>
+      {label && <label>{label}</label>}
+      <input {...props} />
+    </div>
+  );
+}
+```
+
+## I - Interface Segregation
+
+Small and specific interfaces.
+
+```tsx
+// ❌ BAD: Giant interface
+interface UserActions {
+  onCreate, onUpdate, onDelete, onView, onExport, onImport...
+}
+
+// ✅ GOOD: Segregated interfaces
+interface Creatable { onCreate: () => void; }
+interface Editable { onUpdate: () => void; }
+interface Deletable { onDelete: () => void; }
+```
+
+## D - Dependency Inversion
+
+Depend on abstractions, not concrete implementations.
+
+```tsx
+// ✅ GOOD: Hook receives service as dependency
+function useNotifications(notificationService: NotificationService) {
+  return useMutation({
+    mutationFn: notificationService.send,
+  });
+}
+
+// Usage with different implementations
+useNotifications(emailService);
+useNotifications(pushService);
+```
+
+## SOLID Checklist
+
+- [ ] Does each component have a single responsibility?
+- [ ] Can I extend without modifying existing code?
+- [ ] Do specialized components maintain the parent contract?
+- [ ] Are interfaces small and specific?
+- [ ] Are dependencies injected rather than instantiated?

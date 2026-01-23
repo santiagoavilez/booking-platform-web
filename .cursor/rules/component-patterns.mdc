@@ -1,0 +1,139 @@
+---
+description: Recommended React component patterns
+globs: "**/*.tsx"
+alwaysApply: false
+---
+
+# React Component Patterns
+
+## Functional Components
+
+```tsx
+// ✅ Always use function declarations for components
+export function UserCard({ user }: UserCardProps) {
+  return <div>{user.name}</div>;
+}
+
+// ❌ Avoid arrow functions for exported components
+export const UserCard = ({ user }) => <div>{user.name}</div>;
+```
+
+## Compound Components
+
+For components with related parts:
+
+```tsx
+// Card with subcomponents
+function Card({ children }: { children: ReactNode }) {
+  return <div className="rounded-lg border p-4">{children}</div>;
+}
+
+Card.Header = function CardHeader({ children }: { children: ReactNode }) {
+  return <div className="border-b pb-2 mb-2">{children}</div>;
+};
+
+Card.Body = function CardBody({ children }: { children: ReactNode }) {
+  return <div>{children}</div>;
+};
+
+// Usage
+<Card>
+  <Card.Header>Title</Card.Header>
+  <Card.Body>Content</Card.Body>
+</Card>
+```
+
+## Render Props (when needed)
+
+```tsx
+interface DataFetcherProps<T> {
+  url: string;
+  children: (data: T, loading: boolean) => ReactNode;
+}
+
+function DataFetcher<T>({ url, children }: DataFetcherProps<T>) {
+  const { data, isLoading } = useQuery(['data', url], () => fetch(url));
+  return <>{children(data as T, isLoading)}</>;
+}
+```
+
+## Controlled vs Uncontrolled
+
+```tsx
+// ✅ Controlled: State managed by parent
+interface InputProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+function ControlledInput({ value, onChange }: InputProps) {
+  return <input value={value} onChange={e => onChange(e.target.value)} />;
+}
+
+// ✅ Uncontrolled with ref: For simple forms
+function UncontrolledInput() {
+  const inputRef = useRef<HTMLInputElement>(null);
+  return <input ref={inputRef} defaultValue="" />;
+}
+```
+
+## Composition Over Inheritance
+
+```tsx
+// ✅ GOOD: Composition
+function Dialog({ children }: { children: ReactNode }) {
+  return <div className="dialog">{children}</div>;
+}
+
+function ConfirmDialog({ onConfirm, onCancel }: ConfirmDialogProps) {
+  return (
+    <Dialog>
+      <Dialog.Body>Are you sure?</Dialog.Body>
+      <Dialog.Footer>
+        <Button onClick={onCancel}>Cancel</Button>
+        <Button onClick={onConfirm}>Confirm</Button>
+      </Dialog.Footer>
+    </Dialog>
+  );
+}
+```
+
+## Early Returns
+
+```tsx
+export function UserProfile({ userId }: { userId: string }) {
+  const { data: user, isLoading, error } = useUser(userId);
+
+  // Early returns for loading/error states
+  if (isLoading) return <Skeleton />;
+  if (error) return <ErrorMessage error={error} />;
+  if (!user) return <NotFound />;
+
+  // Clean main render
+  return (
+    <div>
+      <h1>{user.name}</h1>
+      <p>{user.email}</p>
+    </div>
+  );
+}
+```
+
+## Props with Defaults
+
+```tsx
+interface ButtonProps {
+  variant?: 'primary' | 'secondary';
+  size?: 'sm' | 'md' | 'lg';
+  disabled?: boolean;
+}
+
+export function Button({ 
+  variant = 'primary', 
+  size = 'md',
+  disabled = false,
+  ...props 
+}: ButtonProps) {
+  // ...
+}
+```

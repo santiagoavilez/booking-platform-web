@@ -1,0 +1,160 @@
+---
+description: API integration patterns
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# API Integration
+
+## Base API Client
+
+```tsx
+// services/api-client.ts
+import axios from 'axios';
+
+const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Auth token interceptor
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Error interceptor
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Redirect to login
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export { apiClient };
+```
+
+## Feature API Structure
+
+```tsx
+// features/professionals/api.ts
+import { apiClient } from '@/services/api-client';
+import type { ProfessionalDTO, CreateProfessionalDTO } from '@/shared/dtos';
+
+export const professionalsApi = {
+  getAll: async (params?: { specialty?: string }) => {
+    const { data } = await apiClient.get<ProfessionalDTO[]>('/professionals', { params });
+    return data;
+  },
+
+  getById: async (id: string) => {
+    const { data } = await apiClient.get<ProfessionalDTO>(`/professionals/${id}`);
+    return data;
+  },
+
+  create: async (dto: CreateProfessionalDTO) => {
+    const { data } = await apiClient.post<ProfessionalDTO>('/professionals', dto);
+    return data;
+  },
+};
+```
+
+## Hooks with React Query
+
+```tsx
+// features/professionals/hooks.ts
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { professionalsApi } from './api';
+
+// Centralized query keys
+export const professionalKeys = {
+  all: ['professionals'] as const,
+  lists: () => [...professionalKeys.all, 'list'] as const,
+  list: (filters: string) => [...professionalKeys.lists(), { filters }] as const,
+  details: () => [...professionalKeys.all, 'detail'] as const,
+  detail: (id: string) => [...professionalKeys.details(), id] as const,
+};
+
+// Read hook
+export function useProfessionals(filters?: { specialty?: string }) {
+  return useQuery({
+    queryKey: professionalKeys.list(JSON.stringify(filters)),
+    queryFn: () => professionalsApi.getAll(filters),
+  });
+}
+
+// Mutation hook
+export function useCreateProfessional() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: professionalsApi.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: professionalKeys.lists() });
+    },
+  });
+}
+```
+
+## Error Handling
+
+```tsx
+// shared/errors/api-error.ts
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public statusCode: number,
+    public errors?: Record<string, string[]>
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+// Usage in component
+function BookingForm() {
+  const { mutate, error, isError } = useCreateAppointment();
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {isError && (
+        <Alert variant="destructive">
+          {error instanceof ApiError 
+            ? error.message 
+            : 'Unexpected error'}
+        </Alert>
+      )}
+      {/* ... */}
+    </form>
+  );
+}
+```
+
+## Loading States
+
+```tsx
+function ProfessionalsList() {
+  const { data, isLoading, isError, error } = useProfessionals();
+
+  if (isLoading) return <ProfessionalsListSkeleton />;
+  if (isError) return <ErrorState error={error} />;
+  if (!data?.length) return <EmptyState />;
+
+  return (
+    <div className="grid gap-4">
+      {data.map(professional => (
+        <ProfessionalCard key={professional.id} professional={professional} />
+      ))}
+    </div>
+  );
+}
+```

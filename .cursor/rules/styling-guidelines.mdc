@@ -1,0 +1,143 @@
+---
+description: Styling guidelines with Tailwind CSS and shadcn/ui
+globs: "**/*.{tsx,css}"
+alwaysApply: false
+---
+
+# Styling Guidelines
+
+## Tailwind CSS - Mobile First
+
+```tsx
+// ✅ ALWAYS start with mobile
+<div className="
+  flex flex-col gap-2        // Mobile base
+  sm:flex-row sm:gap-4       // Tablet
+  lg:gap-6                   // Desktop
+">
+```
+
+## Class Order (Recommended)
+
+```tsx
+<div className="
+  {/* 1. Layout */}
+  flex flex-col items-center justify-between
+  
+  {/* 2. Size */}
+  w-full h-auto min-h-screen
+  
+  {/* 3. Spacing */}
+  p-4 m-2 gap-4
+  
+  {/* 4. Typography */}
+  text-base font-medium text-gray-900
+  
+  {/* 5. Background and borders */}
+  bg-white border border-gray-200 rounded-lg
+  
+  {/* 6. Effects */}
+  shadow-sm hover:shadow-md transition-shadow
+  
+  {/* 7. Responsive (always last) */}
+  md:flex-row md:p-6 lg:p-8
+">
+```
+
+## cn() Utility for Conditional Classes
+
+```tsx
+import { cn } from '@/lib/utils';
+
+interface ButtonProps {
+  variant?: 'primary' | 'secondary';
+  disabled?: boolean;
+}
+
+function Button({ variant = 'primary', disabled, className }: ButtonProps) {
+  return (
+    <button
+      className={cn(
+        // Base styles
+        'px-4 py-2 rounded-md font-medium transition-colors',
+        // Variants
+        {
+          'bg-primary text-white hover:bg-primary/90': variant === 'primary',
+          'bg-secondary text-secondary-foreground': variant === 'secondary',
+        },
+        // States
+        disabled && 'opacity-50 cursor-not-allowed',
+        // Allow override
+        className
+      )}
+    />
+  );
+}
+```
+
+## shadcn/ui - Correct Usage
+
+```tsx
+// ✅ GOOD: Import shadcn components
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+
+// ✅ GOOD: Extend with className
+<Button className="w-full md:w-auto">
+  Book Now
+</Button>
+
+// ✅ GOOD: Use shadcn variants
+<Button variant="outline" size="sm">
+  Cancel
+</Button>
+```
+
+## Semantic Colors
+
+```tsx
+// ✅ GOOD: Use shadcn CSS variables
+<div className="bg-background text-foreground">
+<div className="bg-primary text-primary-foreground">
+<div className="bg-destructive text-destructive-foreground">
+<div className="border-border">
+<div className="text-muted-foreground">
+
+// ❌ BAD: Hardcoded colors
+<div className="bg-blue-500 text-white">
+```
+
+## Consistent Spacing
+
+```tsx
+// Spacing system (multiples of 4)
+// 1 = 4px, 2 = 8px, 4 = 16px, 6 = 24px, 8 = 32px
+
+// ✅ GOOD: Consistent spacing
+<div className="p-4 space-y-4">     // 16px
+<div className="p-6 space-y-6">     // 24px
+
+// ❌ BAD: Arbitrary spacing
+<div className="p-[13px] space-y-[7px]">
+```
+
+## Dark Mode Ready
+
+```tsx
+// ✅ Prepare for dark mode (even if not implemented now)
+<div className="bg-white dark:bg-gray-900">
+<p className="text-gray-900 dark:text-gray-100">
+
+// ✅ BETTER: Use semantic variables
+<div className="bg-background text-foreground">
+```
+
+## Responsive Typography
+
+```tsx
+// ✅ Responsive text
+<h1 className="text-2xl font-bold md:text-3xl lg:text-4xl">
+<p className="text-sm md:text-base">
+<span className="text-xs text-muted-foreground">
+```

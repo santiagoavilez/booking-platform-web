@@ -1,0 +1,137 @@
+---
+description: Performance optimization in React
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Performance
+
+## Memoization
+
+### useMemo - For Expensive Calculations
+
+```tsx
+// ✅ GOOD: Expensive calculation
+const sortedItems = useMemo(() => 
+  items.sort((a, b) => a.date - b.date),
+  [items]
+);
+
+// ❌ BAD: Trivial calculation (doesn't need memo)
+const doubledCount = useMemo(() => count * 2, [count]);
+```
+
+### useCallback - For Functions Passed to Children
+
+```tsx
+// ✅ GOOD: Callback passed to memoized component
+const handleSelect = useCallback((id: string) => {
+  setSelectedId(id);
+}, []);
+
+<MemoizedList onSelect={handleSelect} />
+
+// ❌ BAD: Simple inline callback
+<button onClick={() => setOpen(true)}>  // OK if doesn't affect renders
+```
+
+### React.memo - For Pure Components
+
+```tsx
+// ✅ GOOD: Component receiving stable props
+const ProfessionalCard = memo(function ProfessionalCard({ 
+  professional 
+}: ProfessionalCardProps) {
+  return <Card>...</Card>;
+});
+
+// ❌ BAD: Component with always-changing props
+// memo won't help if props are new objects every render
+```
+
+## Lazy Loading
+
+```tsx
+// ✅ Code splitting by routes
+const BookingPage = lazy(() => import('@/features/appointments/pages/BookingPage'));
+const ProfilePage = lazy(() => import('@/features/professionals/pages/ProfilePage'));
+
+// In router
+<Suspense fallback={<PageSkeleton />}>
+  <Routes>
+    <Route path="/booking" element={<BookingPage />} />
+  </Routes>
+</Suspense>
+```
+
+## Images
+
+```tsx
+// ✅ GOOD: Lazy loading images
+<img 
+  src={imageUrl}
+  alt={description}
+  loading="lazy"
+  decoding="async"
+  className="w-full h-auto"
+/>
+
+// ✅ GOOD: Placeholder while loading
+const [loaded, setLoaded] = useState(false);
+<>
+  {!loaded && <Skeleton className="w-full aspect-video" />}
+  <img onLoad={() => setLoaded(true)} className={loaded ? '' : 'hidden'} />
+</>
+```
+
+## Long Lists
+
+```tsx
+// ✅ For very long lists (100+ items), consider virtualization
+import { useVirtualizer } from '@tanstack/react-virtual';
+
+// ✅ For moderate lists, stable keys
+{items.map(item => (
+  <Item key={item.id} {...item} />  // ✅ stable id
+))}
+
+// ❌ BAD: Index as key (causes re-renders)
+{items.map((item, index) => (
+  <Item key={index} {...item} />
+))}
+```
+
+## React Query - Optimal Configuration
+
+```tsx
+// ✅ Configure appropriate staleTime
+const { data } = useQuery({
+  queryKey: ['professionals'],
+  queryFn: fetchProfessionals,
+  staleTime: 5 * 60 * 1000,  // 5 min - data that doesn't change frequently
+});
+
+// ✅ Prefetch for better UX
+const queryClient = useQueryClient();
+const prefetchProfessional = (id: string) => {
+  queryClient.prefetchQuery({
+    queryKey: ['professional', id],
+    queryFn: () => fetchProfessional(id),
+  });
+};
+
+// On card hover
+<Card onMouseEnter={() => prefetchProfessional(id)}>
+```
+
+## Bundle Size
+
+```tsx
+// ✅ Specific import
+import { format } from 'date-fns';
+import { debounce } from 'lodash-es';
+
+// ❌ BAD: Full import
+import * as dateFns from 'date-fns';
+import _ from 'lodash';
+```

@@ -1,0 +1,150 @@
+---
+description: Basic accessibility (a11y) for the project
+globs: "**/*.tsx"
+alwaysApply: false
+---
+
+# Accessibility (a11y)
+
+## Semantic HTML
+
+```tsx
+// ✅ GOOD: Semantic elements
+<header>...</header>
+<nav>...</nav>
+<main>...</main>
+<article>...</article>
+<aside>...</aside>
+<footer>...</footer>
+
+// ❌ BAD: Divs for everything
+<div className="header">...</div>
+```
+
+## Buttons vs Links
+
+```tsx
+// ✅ GOOD: Button for actions
+<button onClick={handleSubmit}>Submit</button>
+
+// ✅ GOOD: Link for navigation
+<a href="/professionals">View professionals</a>
+
+// ❌ BAD: Div as button
+<div onClick={handleClick}>Click here</div>
+
+// ❌ BAD: Button to navigate
+<button onClick={() => navigate('/home')}>Go to home</button>
+```
+
+## Form Labels
+
+```tsx
+// ✅ GOOD: Associated label
+<label htmlFor="email">Email</label>
+<input id="email" type="email" />
+
+// ✅ GOOD: Wrapping label
+<label>
+  Email
+  <input type="email" />
+</label>
+
+// ❌ BAD: No label
+<input type="email" placeholder="Email" />
+```
+
+## ARIA When Necessary
+
+```tsx
+// ✅ Loading states
+<button aria-busy={isLoading} disabled={isLoading}>
+  {isLoading ? 'Loading...' : 'Submit'}
+</button>
+
+// ✅ Expandable elements
+<button 
+  aria-expanded={isOpen}
+  aria-controls="menu-content"
+>
+  Menu
+</button>
+<div id="menu-content" hidden={!isOpen}>...</div>
+
+// ✅ Form errors
+<input 
+  aria-invalid={!!error}
+  aria-describedby={error ? 'email-error' : undefined}
+/>
+{error && <span id="email-error" role="alert">{error}</span>}
+```
+
+## Images
+
+```tsx
+// ✅ GOOD: Descriptive alt
+<img src={doctor.photo} alt={`Photo of ${doctor.name}`} />
+
+// ✅ GOOD: Decorative (empty alt)
+<img src="/pattern.svg" alt="" role="presentation" />
+
+// ❌ BAD: No alt
+<img src={photo} />
+
+// ❌ BAD: Redundant alt
+<img src={photo} alt="image" />
+```
+
+## Visible Focus
+
+```tsx
+// ✅ Keep focus visible for keyboard navigation
+<button className="
+  focus:outline-none 
+  focus-visible:ring-2 
+  focus-visible:ring-primary 
+  focus-visible:ring-offset-2
+">
+
+// Tailwind already includes this in shadcn/ui by default
+```
+
+## Skip Links
+
+```tsx
+// For keyboard navigation
+function Layout({ children }) {
+  return (
+    <>
+      <a 
+        href="#main-content" 
+        className="sr-only focus:not-sr-only focus:absolute focus:p-4 focus:bg-background"
+      >
+        Skip to main content
+      </a>
+      <Header />
+      <main id="main-content">{children}</main>
+    </>
+  );
+}
+```
+
+## Color and Contrast
+
+```tsx
+// ✅ GOOD: Don't rely solely on color
+<span className="text-destructive flex items-center gap-1">
+  <AlertIcon /> Error: field required
+</span>
+
+// ❌ BAD: Only color indicates state
+<span className="text-red-500">Error</span>
+```
+
+## Touch Targets (Mobile)
+
+```tsx
+// ✅ Touch areas minimum 44x44px
+<button className="min-h-[44px] min-w-[44px] p-3">
+<a className="inline-flex items-center p-3">
+```

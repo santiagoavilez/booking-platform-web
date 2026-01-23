@@ -1,0 +1,88 @@
+---
+description: Import rules and module dependencies
+alwaysApply: true
+---
+
+# Dependencies & Imports
+
+## Path Aliases
+
+```tsx
+// ✅ ALWAYS use the @/ alias
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/features/auth/hooks';
+import { cn } from '@/lib/utils';
+
+// ❌ NEVER use long relative paths
+import { Button } from '../../../components/ui/button';
+```
+
+## Dependency Matrix
+
+| From ↓ / To → | app/ | features/ | components/ | services/ | shared/ | lib/ |
+|---------------|------|-----------|-------------|-----------|---------|------|
+| **app/** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **features/** | ❌ | ⚠️* | ✅ | ✅ | ✅ | ✅ |
+| **components/** | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
+| **services/** | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| **shared/** | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| **lib/** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+
+> ⚠️* Features can only import from other features through public exports
+
+## Import Order
+
+```tsx
+// 1. React and external libraries
+import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+
+// 2. UI Components
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+
+// 3. Features (hooks, api)
+import { useAuth } from '@/features/auth/hooks';
+import { professionalsApi } from '@/features/professionals/api';
+
+// 4. Shared (types, enums, constants)
+import { UserRole } from '@/shared/enums/roles.enum';
+import type { UserDTO } from '@/shared/dtos/user.dto';
+
+// 5. Utils and lib
+import { cn } from '@/lib/utils';
+
+// 6. Styles (if applicable)
+import './styles.css';
+```
+
+## Feature Exports
+
+Each feature should expose a clear public API:
+
+```tsx
+// features/auth/index.ts
+export { useAuth, useLogin, useLogout } from './hooks';
+export { authApi } from './api';
+export type { LoginDTO, RegisterDTO } from './types';
+```
+
+## Circular Imports
+
+```tsx
+// ❌ FORBIDDEN: Circular dependency
+// auth/hooks.ts imports from professionals/hooks.ts
+// professionals/hooks.ts imports from auth/hooks.ts
+
+// ✅ SOLUTION: Move shared logic to shared/
+```
+
+## Barrel Export Rules
+
+```tsx
+// ✅ GOOD: Import from barrel
+import { Button, Card, Dialog } from '@/components/ui';
+
+// ✅ ALSO GOOD: Direct import (better tree-shaking)
+import { Button } from '@/components/ui/button';
+```

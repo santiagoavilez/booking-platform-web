@@ -1,0 +1,116 @@
+---
+description: Language conventions - All code and documentation must be in English
+alwaysApply: true
+---
+
+# Language Conventions
+
+> **Rule**: ALL code, documentation, and comments MUST be in English
+
+## Code Language
+
+```tsx
+// ✅ GOOD: English everywhere
+const appointmentDate = new Date();
+const isAvailable = checkAvailability(slot);
+function handleBookingSubmit() { /* ... */ }
+
+// ❌ BAD: Other languages in code
+const fechaCita = new Date();
+const estaDisponible = verificarDisponibilidad(slot);
+function manejarEnvioReserva() { /* ... */ }
+```
+
+## Variable and Function Names
+
+```tsx
+// ✅ GOOD
+const professionalList = [];
+const userProfile = {};
+function calculateTotalPrice() {}
+function validateAppointment() {}
+
+// ❌ BAD
+const listaProfesionales = [];
+const perfilUsuario = {};
+function calcularPrecioTotal() {}
+function validarCita() {}
+```
+
+## Comments
+
+```tsx
+// ✅ GOOD: English comments
+// Check if the slot is available before booking
+// This handles the edge case where...
+
+// ❌ BAD: Non-English comments
+// Verificar si el slot está disponible
+// Esto maneja el caso especial donde...
+```
+
+## Error Messages and UI Text
+
+```tsx
+// ✅ GOOD: English in code, i18n for user-facing text
+throw new Error('Invalid appointment date');
+console.error('Failed to fetch professionals');
+
+// For user-facing text, use translation keys
+const ERROR_MESSAGES = {
+  INVALID_DATE: 'Invalid appointment date',
+  FETCH_FAILED: 'Failed to load data',
+};
+```
+
+## Documentation
+
+```tsx
+/**
+ * ✅ GOOD: JSDoc in English
+ * Fetches available time slots for a professional
+ * @param professionalId - The professional's unique identifier
+ * @returns Array of available time slots
+ */
+function getAvailableSlots(professionalId: string) {}
+
+/**
+ * ❌ BAD: JSDoc in other language
+ * Obtiene los horarios disponibles para un profesional
+ * @param idProfesional - Identificador único del profesional
+ */
+```
+
+## File and Folder Names
+
+```tsx
+// ✅ GOOD
+features/appointments/
+components/BookingCard.tsx
+hooks/useAvailability.ts
+shared/dtos/professional.dto.ts
+
+// ❌ BAD
+features/citas/
+components/TarjetaReserva.tsx
+hooks/useDisponibilidad.ts
+shared/dtos/profesional.dto.ts
+```
+
+## Git Commits
+
+```bash
+# ✅ GOOD
+git commit -m "feat: add appointment booking flow"
+git commit -m "fix: resolve availability slot overlap"
+
+# ❌ BAD
+git commit -m "feat: agregar flujo de reserva de citas"
+```
+
+## Why English?
+
+1. **Industry standard** - Most libraries, docs, and resources are in English
+2. **Team collaboration** - Enables working with international teams
+3. **Code consistency** - Mixing languages creates cognitive overhead
+4. **Tooling support** - Better autocomplete, linting, and AI assistance

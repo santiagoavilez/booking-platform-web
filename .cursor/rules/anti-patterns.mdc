@@ -1,0 +1,137 @@
+---
+description: Anti-patterns to avoid in development
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Anti-Patterns to Avoid
+
+## React Anti-Patterns
+
+### ❌ Excessive Props Drilling
+
+```tsx
+// ❌ BAD: Passing props through multiple levels
+<App user={user}>
+  <Layout user={user}>
+    <Sidebar user={user}>
+      <UserMenu user={user} />
+
+// ✅ GOOD: Use Context or global state
+const { user } = useAuth();
+```
+
+### ❌ useEffect for Everything
+
+```tsx
+// ❌ BAD: Deriving state in useEffect
+const [fullName, setFullName] = useState('');
+useEffect(() => {
+  setFullName(`${firstName} ${lastName}`);
+}, [firstName, lastName]);
+
+// ✅ GOOD: Calculate directly
+const fullName = `${firstName} ${lastName}`;
+```
+
+### ❌ State That Should Be Derived
+
+```tsx
+// ❌ BAD: Duplicated state
+const [items, setItems] = useState([]);
+const [itemCount, setItemCount] = useState(0);
+
+// ✅ GOOD: Derive it
+const [items, setItems] = useState([]);
+const itemCount = items.length;
+```
+
+### ❌ Mutating State Directly
+
+```tsx
+// ❌ BAD: Direct mutation
+items.push(newItem);
+setItems(items);
+
+// ✅ GOOD: Create new array
+setItems([...items, newItem]);
+```
+
+## TypeScript Anti-Patterns
+
+### ❌ Unnecessary Type Assertions
+
+```tsx
+// ❌ BAD
+const user = data as User;
+
+// ✅ GOOD: Type guard
+function isUser(data: unknown): data is User {
+  return typeof data === 'object' && data !== null && 'id' in data;
+}
+```
+
+### ❌ Ignoring TypeScript Errors
+
+```tsx
+// ❌ BAD
+// @ts-ignore
+// @ts-expect-error
+const x: any = ...
+
+// ✅ GOOD: Type correctly or use unknown
+```
+
+## Architecture Anti-Patterns
+
+### ❌ Business Logic in Components
+
+```tsx
+// ❌ BAD: Component with complex logic
+function BookingPage() {
+  const validateSlot = () => { /* 50 lines */ };
+  const calculatePrice = () => { /* 30 lines */ };
+  // ...
+}
+
+// ✅ GOOD: Extract to hooks/services
+function BookingPage() {
+  const { validateSlot, calculatePrice } = useBookingLogic();
+}
+```
+
+### ❌ Giant Components
+
+```tsx
+// ❌ BAD: 500+ line component
+// ✅ GOOD: Split into small components < 150 lines
+```
+
+### ❌ Circular Imports
+
+```tsx
+// ❌ BAD: A imports B, B imports A
+// ✅ GOOD: Extract common dependency to shared module
+```
+
+## Performance Anti-Patterns
+
+### ❌ Creating Functions in Render
+
+```tsx
+// ❌ BAD: New function on every render
+<Button onClick={() => handleClick(id)}>
+
+// ✅ GOOD: useCallback if necessary
+const handleItemClick = useCallback(() => handleClick(id), [id]);
+```
+
+### ❌ Inline Objects/Arrays in Props
+
+```tsx
+// ❌ BAD: New object on every render
+<Component style={{ margin: 10 }} />
+
+// ✅ GOOD: Constant or useMemo
+const style = useMemo(() => ({ margin: 10 }), []);
+```

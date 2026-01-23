@@ -1,0 +1,74 @@
+---
+description: Mobile-First design principles and practices
+alwaysApply: true
+---
+
+# Mobile-First Design
+
+> **Golden Rule**: Design for mobile first, then scale up
+
+## Breakpoints (Tailwind)
+
+```
+sm: 640px   → Small tablets
+md: 768px   → Tablets
+lg: 1024px  → Laptops
+xl: 1280px  → Desktop
+2xl: 1536px → Large screens
+```
+
+## Correct Pattern
+
+```tsx
+// ✅ CORRECT: Mobile first, then scale up
+<div className="flex flex-col gap-2 md:flex-row md:gap-4 lg:gap-6">
+  <Card className="w-full md:w-1/2 lg:w-1/3" />
+</div>
+
+// ❌ WRONG: Desktop first
+<div className="flex-row gap-6 sm:flex-col sm:gap-2">
+```
+
+## Mobile-First Checklist
+
+- [ ] Is the base layout for mobile?
+- [ ] Do breakpoints scale up (`md:`, `lg:`)?
+- [ ] Are touch targets ≥ 44px?
+- [ ] Is text readable without zoom?
+- [ ] Are forms usable on mobile?
+
+## Responsive Components
+
+```tsx
+// Adaptive navigation
+<nav className="fixed bottom-0 w-full md:static md:w-auto">
+
+// Responsive grid
+<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+// Responsive text
+<h1 className="text-xl font-bold md:text-2xl lg:text-3xl">
+
+// Responsive spacing
+<section className="p-4 md:p-6 lg:p-8">
+```
+
+## Touch Targets
+
+```tsx
+// ✅ Button with adequate touch area
+<Button className="min-h-[44px] min-w-[44px] px-4 py-3">
+
+// ✅ Links with sufficient padding
+<a className="inline-block p-3">
+```
+
+## Responsive Images
+
+```tsx
+<img 
+  src={image}
+  className="w-full h-auto object-cover"
+  loading="lazy"
+/>
+```
