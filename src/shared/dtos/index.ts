@@ -6,3 +6,21 @@ export type {
   AuthDataDTO,
   AuthResponseDTO,
 } from './auth.dto';
+
+export {
+  DayOfWeek,
+  DAY_NAMES,
+  generateTimeOptions,
+  formatTimeDisplay,
+  doTimeSlotsOverlap,
+  isValidTimeRange,
+  createDefaultAvailability,
+} from './availability.dto';
+
+export type {
+  TimeSlotDTO,
+  DayAvailabilityDTO,
+  WeeklyAvailabilityDTO,
+  UpdateAvailabilityRequestDTO,
+  AvailabilityResponseDTO,
+} from './availability.dto';

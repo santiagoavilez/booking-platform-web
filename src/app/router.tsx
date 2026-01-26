@@ -8,6 +8,7 @@ import SignupPage from '@/features/auth/pages/signup/page';
 
 // Authenticated pages
 import HomePage from '@/features/home/pages/HomePage';
+import AvailabilityPage from '@/features/availability/pages/AvailabilityPage';
 
 // Error pages
 import NotFoundPage from '@/app/pages/NotFoundPage';
@@ -48,6 +49,10 @@ const router = createBrowserRouter([
       {
         path: '/',
         element: <HomePage />,
+      },
+      {
+        path: '/availability',
+        element: <AvailabilityPage />,
       },
       // Add more protected routes here:
       // {

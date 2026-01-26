@@ -1,14 +1,18 @@
+import { useNavigate } from 'react-router-dom';
 import { useAuth, useLogout } from '@/features/auth/hooks';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function HomePage() {
+    const navigate = useNavigate();
     const { user } = useAuth();
     const logout = useLogout();
 
     if (!user) {
         return null;
     }
+
+    const isProfessional = user.role === 'PROFESSIONAL';
 
     const initials = `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
 
@@ -80,10 +84,38 @@ export default function HomePage() {
                         </CardContent>
                     </Card>
 
-                    {/* Quick actions placeholder */}
+                    {/* Quick actions */}
                     <section className="space-y-4">
                         <h3 className="text-lg font-semibold">Acciones rápidas</h3>
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            {/* Availability - Only for professionals */}
+                            {isProfessional && (
+                                <Card
+                                    className="cursor-pointer transition-all hover:border-primary/50 hover:shadow-md"
+                                    onClick={() => navigate('/availability')}
+                                >
+                                    <CardContent className="flex flex-col items-center justify-center p-6 text-center">
+                                        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                                            <svg
+                                                className="h-6 w-6 text-primary"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <p className="font-medium">Mi disponibilidad</p>
+                                        <p className="text-xs text-muted-foreground">Configura tus horarios</p>
+                                    </CardContent>
+                                </Card>
+                            )}
+
                             <Card className="cursor-not-allowed opacity-60">
                                 <CardContent className="flex flex-col items-center justify-center p-6 text-center">
                                     <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
@@ -106,29 +138,32 @@ export default function HomePage() {
                                 </CardContent>
                             </Card>
 
-                            <Card className="cursor-not-allowed opacity-60">
-                                <CardContent className="flex flex-col items-center justify-center p-6 text-center">
-                                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-                                        <svg
-                                            className="h-6 w-6 text-muted-foreground"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                                            />
-                                        </svg>
-                                    </div>
-                                    <p className="font-medium">Profesionales</p>
-                                    <p className="text-xs text-muted-foreground">Próximamente</p>
-                                </CardContent>
-                            </Card>
+                            {/* Professionals - Only for clients */}
+                            {!isProfessional && (
+                                <Card className="cursor-not-allowed opacity-60">
+                                    <CardContent className="flex flex-col items-center justify-center p-6 text-center">
+                                        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                                            <svg
+                                                className="h-6 w-6 text-muted-foreground"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <p className="font-medium">Buscar profesionales</p>
+                                        <p className="text-xs text-muted-foreground">Próximamente</p>
+                                    </CardContent>
+                                </Card>
+                            )}
 
-                            <Card className="cursor-not-allowed opacity-60 sm:col-span-2 lg:col-span-1">
+                            <Card className="cursor-not-allowed opacity-60">
                                 <CardContent className="flex flex-col items-center justify-center p-6 text-center">
                                     <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
                                         <svg
