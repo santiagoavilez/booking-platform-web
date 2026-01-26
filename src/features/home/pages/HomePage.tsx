@@ -140,7 +140,9 @@ export default function HomePage() {
 
                             {/* Professionals - Only for clients */}
                             {!isProfessional && (
-                                <Card className="cursor-not-allowed opacity-60">
+                                <Card className="cursor-not-allowed opacity-60"
+                                    onClick={() => navigate('/professionals')}
+                                >
                                     <CardContent className="flex flex-col items-center justify-center p-6 text-center">
                                         <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
                                             <svg
