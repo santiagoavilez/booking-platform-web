@@ -133,7 +133,7 @@ export default function HomePage() {
                                             />
                                         </svg>
                                     </div>
-                                    <p className="font-medium">Mis citas</p>
+                                    <p className="font-medium">Mis citas próximamente</p>
                                     <p className="text-xs text-muted-foreground">Próximamente</p>
                                 </CardContent>
                             </Card>
