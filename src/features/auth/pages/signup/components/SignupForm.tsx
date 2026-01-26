@@ -24,10 +24,18 @@ import type { UserRole } from '@/shared/dtos/auth.dto';
 // Validation schema with Spanish messages
 const signupSchema = z
   .object({
-    email: z
+    firstName: z
       .string()
-      .min(1, 'El correo electrónico es obligatorio')
-      .email('Ingresa un correo electrónico válido'),
+      .min(1, 'El nombre es obligatorio')
+      .min(2, 'El nombre debe tener al menos 2 caracteres'),
+    lastName: z
+      .string()
+      .min(1, 'El apellido es obligatorio')
+      .min(2, 'El apellido debe tener al menos 2 caracteres'),
+    email: z
+      .email('El correo electrónico no es válido')
+      .min(1, 'El correo electrónico es obligatorio'),
+
     password: z
       .string()
       .min(1, 'La contraseña es obligatoria')
@@ -67,6 +75,8 @@ export function SignupForm({ className, role, onBack, ...props }: SignupFormProp
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
+      firstName: '',
+      lastName: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -75,6 +85,8 @@ export function SignupForm({ className, role, onBack, ...props }: SignupFormProp
 
   const onSubmit = (values: SignupFormValues) => {
     register({
+      firstName: values.firstName,
+      lastName: values.lastName,
       email: values.email,
       password: values.password,
       role: role,
@@ -112,15 +124,15 @@ export function SignupForm({ className, role, onBack, ...props }: SignupFormProp
             <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 md:p-8">
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-4">
-                  <button
-                    type="button"
+                  <Button
+                    variant="link"
                     onClick={onBack}
                     className="flex w-fit items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
                     disabled={isPending}
                   >
                     <ArrowLeft className="h-4 w-4" />
                     Volver
-                  </button>
+                  </Button>
 
                   <div className="flex flex-col items-center gap-2 text-center">
                     <div className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm text-primary">
@@ -139,6 +151,48 @@ export function SignupForm({ className, role, onBack, ...props }: SignupFormProp
                     {errorMessage}
                   </div>
                 )}
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nombre</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            placeholder="Juan"
+                            autoComplete="given-name"
+                            disabled={isPending}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Apellido</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            placeholder="Pérez"
+                            autoComplete="family-name"
+                            disabled={isPending}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}

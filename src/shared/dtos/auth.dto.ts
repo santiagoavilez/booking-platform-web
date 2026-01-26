@@ -9,6 +9,8 @@ export type UserRole = 'PROFESSIONAL' | 'CLIENT' | 'ADMIN';
 export interface UserDTO {
   id: string;
   email: string;
+  firstName: string;
+  lastName: string;
   role: UserRole;
 }
 
@@ -26,7 +28,8 @@ export interface LoginRequestDTO {
 export interface RegisterRequestDTO {
   email: string;
   password: string;
-  name?: string;
+  firstName: string;
+  lastName: string;
   role?: UserRole;
 }
 

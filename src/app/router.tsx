@@ -6,31 +6,11 @@ import { AuthGuard, GuestGuard } from '@/app/guards/auth.guard';
 import LoginPage from '@/features/auth/pages/login/page';
 import SignupPage from '@/features/auth/pages/signup/page';
 
-// Placeholder for authenticated home/dashboard
-function HomePage() {
-  return (
-    <div className="min-h-screen flex items-center justify-center p-8">
-      <div className="text-center space-y-4">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Welcome to your dashboard. You are authenticated!
-        </p>
-      </div>
-    </div>
-  );
-}
+// Authenticated pages
+import HomePage from '@/features/home/pages/HomePage';
 
-// 404 Not Found page
-function NotFoundPage() {
-  return (
-    <div className="min-h-screen flex items-center justify-center p-8">
-      <div className="text-center space-y-4">
-        <h1 className="text-6xl font-bold text-muted-foreground">404</h1>
-        <p className="text-xl">Page not found</p>
-      </div>
-    </div>
-  );
-}
+// Error pages
+import NotFoundPage from '@/app/pages/NotFoundPage';
 
 /**
  * Application router configuration.
