@@ -3,23 +3,7 @@ import { Button } from '@/components/ui/button';
 
 export default function NotFoundPage() {
     return (
-        <div className="relative min-h-svh overflow-hidden bg-background">
-            {/* Decorative background elements */}
-            <div className="pointer-events-none absolute inset-0">
-                {/* Large blurred circle */}
-                <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-muted/40 blur-3xl" />
-                <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-muted/40 blur-3xl" />
-
-                {/* Grid pattern */}
-                <div
-                    className="absolute inset-0 opacity-[0.015]"
-                    style={{
-                        backgroundImage: `linear-gradient(currentColor 1px, transparent 1px),
-                             linear-gradient(to right, currentColor 1px, transparent 1px)`,
-                        backgroundSize: '64px 64px',
-                    }}
-                />
-            </div>
+        <div className="relative min-h-svh overflow-hidden">
 
             {/* Content */}
             <div className="relative flex min-h-svh flex-col items-center justify-center px-4">

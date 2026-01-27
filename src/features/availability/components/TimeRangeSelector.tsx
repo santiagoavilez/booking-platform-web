@@ -49,12 +49,12 @@ export function TimeRangeSelector({
     : false;
 
   return (
-    <div className="space-y-2">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+    <div className="space-y-1.5">
+      <div className="flex items-end gap-2">
         {/* Start time */}
-        <div className="flex-1 space-y-1">
-          <label className="text-xs font-medium text-muted-foreground">
-            Apertura
+        <div className="flex-1 space-y-0.5">
+          <label className="text-[10px] font-medium text-muted-foreground md:text-xs">
+            Desde
           </label>
           <Select
             value={slot.startTime}
@@ -63,9 +63,9 @@ export function TimeRangeSelector({
             }
             disabled={disabled}
           >
-            <SelectTrigger className={hasError ? 'border-destructive' : ''}>
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
+            <SelectTrigger className={`h-9 text-sm ${hasError ? 'border-destructive' : ''}`}>
+              <div className="flex items-center gap-1.5">
+                <Clock className="size-3.5 text-muted-foreground" />
                 <SelectValue>
                   {formatTimeDisplay(slot.startTime)}
                 </SelectValue>
@@ -81,10 +81,13 @@ export function TimeRangeSelector({
           </Select>
         </div>
 
+        {/* Separator */}
+        <span className="pb-2.5 text-xs text-muted-foreground">–</span>
+
         {/* End time */}
-        <div className="flex-1 space-y-1">
-          <label className="text-xs font-medium text-muted-foreground">
-            Cierre
+        <div className="flex-1 space-y-0.5">
+          <label className="text-[10px] font-medium text-muted-foreground md:text-xs">
+            Hasta
           </label>
           <Select
             value={slot.endTime}
@@ -93,9 +96,9 @@ export function TimeRangeSelector({
             }
             disabled={disabled}
           >
-            <SelectTrigger className={hasError ? 'border-destructive' : ''}>
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
+            <SelectTrigger className={`h-9 text-sm ${hasError ? 'border-destructive' : ''}`}>
+              <div className="flex items-center gap-1.5">
+                <Clock className="size-3.5 text-muted-foreground" />
                 <SelectValue>
                   {formatTimeDisplay(slot.endTime)}
                 </SelectValue>
@@ -113,30 +116,28 @@ export function TimeRangeSelector({
 
         {/* Remove button */}
         {canRemove && (
-          <div className="flex items-end">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => onRemove(index)}
-              disabled={disabled}
-              className="text-muted-foreground hover:text-destructive"
-            >
-              <Trash2 className="h-4 w-4" />
-              <span className="sr-only">Eliminar horario</span>
-            </Button>
-          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => onRemove(index)}
+            disabled={disabled}
+            className="size-9 shrink-0 text-muted-foreground hover:text-destructive"
+          >
+            <Trash2 className="size-4" />
+            <span className="sr-only">Eliminar horario</span>
+          </Button>
         )}
       </div>
 
       {/* Error messages */}
       {hasError && (
-        <p className="text-xs text-destructive">
-          La hora de apertura debe ser anterior a la de cierre
+        <p className="text-[11px] text-destructive">
+          La hora de inicio debe ser anterior a la de fin
         </p>
       )}
       {hasOverlapError && (
-        <p className="text-xs text-destructive">
+        <p className="text-[11px] text-destructive">
           Los horarios no pueden solaparse
         </p>
       )}

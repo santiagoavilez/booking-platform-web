@@ -62,17 +62,17 @@ export function DaySchedule({
 
   return (
     <Card className={!enabled ? 'opacity-60' : ''}>
-      <CardContent className="p-4 md:p-6">
-        <div className="space-y-4">
+      <CardContent className="p-3 md:p-4">
+        <div className="space-y-2.5">
           {/* Header with toggle */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5">
               <Switch
                 checked={enabled}
                 onCheckedChange={handleToggle}
                 aria-label={`Activar ${dayName}`}
               />
-              <span className="font-semibold">{dayName}</span>
+              <span className="text-sm font-semibold">{dayName}</span>
             </div>
 
             {/* Apply to all button */}
@@ -82,16 +82,16 @@ export function DaySchedule({
                 variant="link"
                 size="sm"
                 onClick={onApplyToAll}
-                className="text-xs text-muted-foreground hover:text-primary"
+                className="h-auto px-0 py-0 text-[11px] text-muted-foreground hover:text-primary"
               >
-                Usar para todos los días
+                Aplicar a todos
               </Button>
             )}
           </div>
 
           {/* Time slots */}
           {enabled && (
-            <div className="space-y-4 pl-0 md:pl-10">
+            <div className="space-y-2.5 pl-0 md:pl-9">
               {timeSlots.map((slot, index) => (
                 <TimeRangeSelector
                   key={index}
@@ -112,9 +112,9 @@ export function DaySchedule({
                   variant="outline"
                   size="sm"
                   onClick={handleAddSlot}
-                  className="w-full border-dashed"
+                  className="h-8 w-full border-dashed text-xs"
                 >
-                  <Plus className="mr-2 h-4 w-4" />
+                  <Plus className="mr-1.5 size-3.5" />
                   Agregar segundo horario
                 </Button>
               )}

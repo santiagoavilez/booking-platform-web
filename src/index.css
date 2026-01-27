@@ -2,48 +2,34 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 72.2% 50.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 0 0% 3.9%;
+    /* Galaxy Theme - Dark by default */
+    --background: 250 30% 6%;
+    --foreground: 220 20% 95%;
+    --card: 250 40% 8%;
+    --card-foreground: 220 20% 95%;
+    --popover: 250 45% 10%;
+    --popover-foreground: 220 20% 95%;
+    --primary: 265 80% 65%;
+    --primary-foreground: 220 20% 98%;
+    --secondary: 220 50% 15%;
+    --secondary-foreground: 220 20% 95%;
+    --muted: 250 30% 12%;
+    --muted-foreground: 220 15% 60%;
+    --accent: 280 70% 50%;
+    --accent-foreground: 220 20% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 220 20% 98%;
+    --border: 260 30% 18%;
+    --input: 260 30% 15%;
+    --ring: 265 80% 65%;
     --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    
+    /* Galaxy-specific colors */
+    --galaxy-purple: 265 80% 55%;
+    --galaxy-blue: 220 90% 60%;
+    --galaxy-pink: 320 80% 60%;
+    --galaxy-cyan: 190 90% 50%;
+    --star-white: 220 20% 95%;
   }
 }
 
@@ -73,8 +59,295 @@
   * {
     border-color: hsl(var(--border));
   }
-  body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+  
+  html {
+    background-color: #0a0a1a;
   }
+  
+  body {
+    background-color: transparent;
+    color: hsl(var(--foreground));
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+}
+
+/* ================================
+   GALAXY BACKGROUND EFFECTS
+   ================================ */
+
+/* Nebula gradients */
+.nebula-1 {
+  background: 
+    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(120, 80, 200, 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(80, 120, 200, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 60% at 40% 80%, rgba(180, 80, 150, 0.25) 0%, transparent 50%);
+  animation: nebulaDrift 30s ease-in-out infinite alternate;
+}
+
+.nebula-2 {
+  background: 
+    radial-gradient(ellipse 70% 45% at 70% 60%, rgba(100, 150, 230, 0.35) 0%, transparent 50%),
+    radial-gradient(ellipse 55% 35% at 30% 25%, rgba(160, 100, 200, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse 45% 55% at 85% 85%, rgba(200, 100, 180, 0.2) 0%, transparent 50%);
+  animation: nebulaDrift 25s ease-in-out infinite alternate-reverse;
+}
+
+/* Cosmic dust */
+.cosmic-dust {
+  background-image: 
+    radial-gradient(1px 1px at 10% 20%, rgba(255, 255, 255, 0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 60%, rgba(200, 220, 255, 0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 10%, rgba(255, 255, 255, 0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 80%, rgba(200, 180, 255, 0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 40%, rgba(255, 255, 255, 0.3) 0%, transparent 100%);
+  animation: cosmicShimmer 8s ease-in-out infinite;
+}
+
+/* ================================
+   SHOOTING STARS
+   ================================ */
+   
+.shooting-star {
+  position: absolute;
+  width: 150px;
+  height: 3px;
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0.9) 10%,
+    rgba(200, 220, 255, 0.7) 30%,
+    rgba(150, 180, 255, 0.4) 60%,
+    transparent 100%
+  );
+  border-radius: 50%;
+  opacity: 0;
+  transform-origin: left center;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9)) 
+          drop-shadow(0 0 12px rgba(200, 220, 255, 0.6));
+}
+
+.shooting-star::before {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle, 
+    rgba(255, 255, 255, 1) 0%, 
+    rgba(255, 255, 255, 0.9) 30%,
+    rgba(200, 220, 255, 0.7) 60%,
+    transparent 100%
+  );
+  border-radius: 50%;
+  left: -5px;
+  top: -3.5px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+              0 0 20px rgba(200, 220, 255, 0.5);
+}
+
+.shooting-star-1 {
+  top: 10%;
+  left: 48%;
+  width: 160px;
+  animation: shootingStarCenter1 28s ease-in-out infinite;
+  animation-delay: 0s;
+}
+
+.shooting-star-2 {
+  top: 15%;
+  left: 50%;
+  width: 140px;
+  animation: shootingStarCenter2 32s ease-in-out infinite;
+  animation-delay: 10s;
+}
+
+.shooting-star-3 {
+  top: 12%;
+  left: 47%;
+  width: 150px;
+  animation: shootingStarCenter3 30s ease-in-out infinite;
+  animation-delay: 20s;
+}
+
+/* ================================
+   KEYFRAME ANIMATIONS
+   ================================ */
+
+@keyframes nebulaDrift {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(30px, -20px) scale(1.05);
+    opacity: 0.35;
+  }
+}
+
+@keyframes cosmicShimmer {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes shootingStar {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(-45deg);
+  }
+  1% {
+    opacity: 1;
+  }
+  10% {
+    opacity: 1;
+    transform: translate(calc(100vw + 200px), calc(100vw + 200px)) rotate(-45deg);
+  }
+  10.1%, 100% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(-45deg);
+  }
+}
+
+@keyframes shootingStarCenter1 {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) rotate(75deg) scale(0.7);
+  }
+  1% {
+    opacity: 0.8;
+  }
+  2% {
+    opacity: 1;
+  }
+  35% {
+    opacity: 1;
+    transform: translate(calc(-50% + 8vw), calc(75vh)) rotate(75deg) scale(1.1);
+  }
+  38% {
+    opacity: 0.9;
+  }
+  42%, 100% {
+    opacity: 0;
+    transform: translate(calc(-50% + 12vw), calc(85vh)) rotate(75deg) scale(0.5);
+  }
+}
+
+@keyframes shootingStarCenter2 {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) rotate(85deg) scale(0.7);
+  }
+  1% {
+    opacity: 0.8;
+  }
+  2% {
+    opacity: 1;
+  }
+  38% {
+    opacity: 1;
+    transform: translate(calc(-50% + -6vw), calc(78vh)) rotate(85deg) scale(1.1);
+  }
+  41% {
+    opacity: 0.9;
+  }
+  45%, 100% {
+    opacity: 0;
+    transform: translate(calc(-50% + -10vw), calc(88vh)) rotate(85deg) scale(0.5);
+  }
+}
+
+@keyframes shootingStarCenter3 {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) rotate(70deg) scale(0.7);
+  }
+  1% {
+    opacity: 0.8;
+  }
+  2% {
+    opacity: 1;
+  }
+  36% {
+    opacity: 1;
+    transform: translate(calc(-50% + 5vw), calc(76vh)) rotate(70deg) scale(1.1);
+  }
+  39% {
+    opacity: 0.9;
+  }
+  43%, 100% {
+    opacity: 0;
+    transform: translate(calc(-50% + 8vw), calc(86vh)) rotate(70deg) scale(0.5);
+  }
+}
+
+/* ================================
+   GLASS MORPHISM CARD OVERRIDES
+   ================================ */
+
+.galaxy-layout .glass-card,
+.galaxy-layout [data-slot="card"] {
+  background: rgba(15, 15, 35, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 4px 30px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ================================
+   TEXT GLOW EFFECTS
+   ================================ */
+
+.galaxy-layout h1,
+.galaxy-layout h2,
+.galaxy-layout h3 {
+  text-shadow: 0 0 30px rgba(147, 112, 219, 0.3);
+}
+
+/* ================================
+   BUTTON GLOW ON HOVER
+   ================================ */
+
+.galaxy-layout button[data-slot="button"]:hover {
+  box-shadow: 
+    0 0 20px rgba(147, 112, 219, 0.4),
+    0 0 40px rgba(147, 112, 219, 0.2);
+}
+
+/* ================================
+   INPUT FOCUS GLOW
+   ================================ */
+
+.galaxy-layout input:focus,
+.galaxy-layout select:focus,
+.galaxy-layout textarea:focus {
+  box-shadow: 
+    0 0 0 2px rgba(147, 112, 219, 0.3),
+    0 0 20px rgba(147, 112, 219, 0.2);
+}
+
+/* ================================
+   SCROLLBAR STYLING
+   ================================ */
+
+.galaxy-layout ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.galaxy-layout ::-webkit-scrollbar-track {
+  background: rgba(15, 15, 35, 0.5);
+}
+
+.galaxy-layout ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(147, 112, 219, 0.5), rgba(100, 80, 180, 0.5));
+  border-radius: 4px;
+}
+
+.galaxy-layout ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(147, 112, 219, 0.7), rgba(100, 80, 180, 0.7));
 }

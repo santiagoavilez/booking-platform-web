@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/app/providers/auth.provider';
 import { AppRouter } from '@/app/router';
+import { GalaxyLayout } from '@/components/layout';
 import './index.css';
 import { Toaster } from "@/components/ui/sonner"
 
@@ -19,8 +20,10 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <AppRouter />
-        <Toaster richColors />
+        <GalaxyLayout>
+          <AppRouter />
+          <Toaster richColors />
+        </GalaxyLayout>
       </AuthProvider>
     </QueryClientProvider>
   </StrictMode>

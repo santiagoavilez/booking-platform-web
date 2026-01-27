@@ -17,9 +17,9 @@ export default function HomePage() {
     const initials = `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
 
     return (
-        <div className="min-h-svh bg-linear-to-br from-background via-background to-muted/30">
+        <div className="min-h-svh">
             {/* Header */}
-            <header className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur-sm">
+            <header className="sticky top-0 z-10 border-b border-white/10 bg-black/30 backdrop-blur-md">
                 <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4 md:px-6">
                     <h1 className="text-lg font-semibold tracking-tight md:text-xl">
                         Booking Platform

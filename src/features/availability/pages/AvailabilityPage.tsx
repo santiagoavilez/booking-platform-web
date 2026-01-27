@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, Loader2, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/features/auth/hooks';
 import { useMyAvailability, useUpdateAvailability } from '../hooks';
 import { DaySchedule } from '../components/DaySchedule';
@@ -129,21 +129,21 @@ export default function AvailabilityPage() {
   });
 
   return (
-    <div className="min-h-svh bg-linear-to-br from-background via-background to-muted/30">
+    <div className="min-h-svh">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-3xl items-center gap-4 px-4 py-4 md:px-6">
+      <header className="sticky top-0 z-10 border-b border-white/10 bg-black/30 backdrop-blur-md">
+        <div className="mx-auto flex max-w-3xl items-center gap-3 px-3 py-3 md:px-6 md:py-4">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => navigate('/')}
-            className="shrink-0"
+            className="size-9 shrink-0"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="size-5" />
             <span className="sr-only">Volver</span>
           </Button>
           <div className="flex-1">
-            <h1 className="text-lg font-semibold tracking-tight">
+            <h1 className="text-base font-semibold tracking-tight md:text-lg">
               Horarios de Disponibilidad
             </h1>
           </div>
@@ -153,45 +153,38 @@ export default function AvailabilityPage() {
             size="sm"
           >
             {updateMutation.isPending ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="mr-1.5 size-4 animate-spin" />
             ) : (
-              <Save className="mr-2 h-4 w-4" />
+              <Save className="mr-1.5 size-4" />
             )}
-            Guardar
+            <span className="hidden sm:inline">Guardar</span>
+            <span className="sm:hidden">Guardar</span>
           </Button>
         </div>
       </header>
 
       {/* Main content */}
-      <main className="mx-auto max-w-3xl px-4 py-6 md:px-6 md:py-8">
+      <main className="mx-auto max-w-3xl px-3 py-3 md:px-6 md:py-5">
         {isLoadingSchedule ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="size-6 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <div className="space-y-6">
-            {/* Info card */}
-            <Card>
-              <CardHeader className="pb-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                    <Calendar className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-base">
-                      Configura tu disponibilidad semanal
-                    </CardTitle>
-                    <CardDescription>
-                      Define los horarios en los que estás disponible para recibir citas.
-                      Puedes agregar hasta 2 rangos por día.
-                    </CardDescription>
-                  </div>
+          <div className="space-y-3 md:space-y-4">
+            {/* Info card - more compact */}
+            <Card className="bg-muted/30">
+              <CardContent className="flex items-center gap-3 px-3 py-2.5 md:px-4 md:py-3">
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                  <Calendar className="size-4 text-primary" />
                 </div>
-              </CardHeader>
+                <p className="text-xs text-muted-foreground md:text-sm">
+                  Configura tus horarios disponibles para citas. Máximo 2 rangos por día.
+                </p>
+              </CardContent>
             </Card>
 
             {/* Days schedule */}
-            <div className="space-y-4">
+            <div className="space-y-2 md:space-y-3">
               {sortedSchedule.map((dayAvailability) => (
                 <DaySchedule
                   key={dayAvailability.dayOfWeek}
@@ -204,49 +197,42 @@ export default function AvailabilityPage() {
               ))}
             </div>
 
-            {/* Status messages */}
+            {/* Status messages - more compact */}
             {updateMutation.isSuccess && !hasChanges && (
-              <Card className="border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950">
-                <CardContent className="py-3">
-                  <p className="text-sm text-green-700 dark:text-green-300">
-                    ✓ Horarios guardados correctamente
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="rounded-md border border-green-200 bg-green-50 px-3 py-2 dark:border-green-900 dark:bg-green-950">
+                <p className="text-xs text-green-700 dark:text-green-300">
+                  ✓ Horarios guardados correctamente
+                </p>
+              </div>
             )}
 
             {updateMutation.isError && (
-              <Card className="border-destructive/50 bg-destructive/10">
-                <CardContent className="py-3">
-                  <p className="text-sm text-destructive">
-                    Error al guardar. Por favor, intenta de nuevo.
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2">
+                <p className="text-xs text-destructive">
+                  Error al guardar. Por favor, intenta de nuevo.
+                </p>
+              </div>
             )}
 
             {!isValid && hasChanges && (
-              <Card className="border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950">
-                <CardContent className="py-3">
-                  <p className="text-sm text-amber-700 dark:text-amber-300">
-                    Revisa los horarios marcados en rojo antes de guardar.
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-900 dark:bg-amber-950">
+                <p className="text-xs text-amber-700 dark:text-amber-300">
+                  Revisa los horarios marcados en rojo antes de guardar.
+                </p>
+              </div>
             )}
 
             {/* Mobile save button */}
-            <div className="sticky bottom-4 md:hidden">
+            <div className="sticky bottom-3 pt-1 md:hidden">
               <Button
                 onClick={handleSave}
                 disabled={!canSave}
                 className="w-full shadow-lg"
-                size="lg"
               >
                 {updateMutation.isPending ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-1.5 size-4 animate-spin" />
                 ) : (
-                  <Save className="mr-2 h-4 w-4" />
+                  <Save className="mr-1.5 size-4" />
                 )}
                 Guardar cambios
               </Button>

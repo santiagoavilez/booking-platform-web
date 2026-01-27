@@ -155,7 +155,19 @@ export function LoginForm({
               </div>
             </form>
           </Form>
-          <div className="bg-muted relative hidden md:block"></div>
+          <div className="relative hidden md:block overflow-hidden">
+            {/* Galaxy accent panel */}
+            <div className="absolute inset-0 bg-linear-to-br from-primary/20 via-purple-600/10 to-blue-600/20" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(147,112,219,0.3)_0%,transparent_50%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(100,150,230,0.2)_0%,transparent_50%)]" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center px-8">
+                <div className="text-6xl mb-4">✨</div>
+                <h2 className="text-xl font-bold text-white/90 mb-2">Booking Platform</h2>
+                <p className="text-sm text-white/60">Tu portal de citas profesionales</p>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
       <p className="px-6 text-center text-sm text-muted-foreground">
