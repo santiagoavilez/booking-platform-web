@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/features/auth/hooks';
 import { useMyAvailability, useUpdateAvailability } from '../hooks';
 import { DaySchedule } from '../components/DaySchedule';
+import { DayScheduleSkeleton } from '../components/DayScheduleSkeleton';
 import type { DayAvailabilityDTO } from '@/shared/dtos/availability.dto';
 import {
   createDefaultAvailability,
@@ -166,8 +167,25 @@ export default function AvailabilityPage() {
       {/* Main content */}
       <main className="mx-auto max-w-3xl px-3 py-3 md:px-6 md:py-5">
         {isLoadingSchedule ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="size-6 animate-spin text-muted-foreground" />
+          <div className="space-y-3 md:space-y-4">
+            {/* Info card skeleton */}
+            <Card className="bg-muted/30">
+              <CardContent className="flex items-center gap-3 px-3 py-2.5 md:px-4 md:py-3">
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                  <Calendar className="size-4 text-primary" />
+                </div>
+                <p className="text-xs text-muted-foreground md:text-sm">
+                  Configura tus horarios disponibles para citas. Máximo 2 rangos por día.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Days schedule skeletons */}
+            <div className="space-y-2 md:space-y-3">
+              {Array.from({ length: 7 }).map((_, index) => (
+                <DayScheduleSkeleton key={index} />
+              ))}
+            </div>
           </div>
         ) : (
           <div className="space-y-3 md:space-y-4">

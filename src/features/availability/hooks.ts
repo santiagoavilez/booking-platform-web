@@ -4,7 +4,10 @@ import type {
   DayAvailabilityDTO,
   UpdateAvailabilityRequestDTO,
 } from '@/shared/dtos/availability.dto';
-import { createDefaultAvailability } from '@/shared/dtos/availability.dto';
+import {
+  createDefaultAvailability,
+  transformAvailabilitySlotsToSchedule,
+} from '@/shared/dtos/availability.dto';
 
 const AVAILABILITY_QUERY_KEY = ['availability', 'me'];
 
@@ -15,14 +18,16 @@ export function useMyAvailability() {
   return useQuery({
     queryKey: AVAILABILITY_QUERY_KEY,
     queryFn: availabilityApi.getMyAvailability,
-    select: (response) => response.data.schedule,
-    // Provide default availability if API returns empty
-    placeholderData: {
-      success: true,
-      data: {
-        professionalId: '',
-        schedule: createDefaultAvailability(),
-      },
+    select: (response) => {
+      // Transform backend slots to DayAvailabilityDTO format
+      const slots = response.data.availabilities || [];
+      
+      // If no slots exist, return placeholder schedule
+      if (slots.length === 0) {
+        return createDefaultAvailability();
+      }
+      
+      return transformAvailabilitySlotsToSchedule(slots);
     },
   });
 }

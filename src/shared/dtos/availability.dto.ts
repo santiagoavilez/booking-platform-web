@@ -60,11 +60,23 @@ export interface UpdateAvailabilityRequestDTO {
 }
 
 /**
- * Response from availability API
+ * Single availability slot from backend
+ */
+export interface AvailabilitySlotDTO {
+  id: string;
+  dayOfWeek: DayOfWeek;
+  startTime: string;
+  endTime: string;
+}
+
+/**
+ * Response from GET /availability/me endpoint
  */
 export interface AvailabilityResponseDTO {
   success: boolean;
-  data: WeeklyAvailabilityDTO;
+  data: {
+    availabilities: AvailabilitySlotDTO[];
+  };
 }
 
 /**
@@ -129,5 +141,72 @@ export function createDefaultAvailability(): DayAvailabilityDTO[] {
       ? [{ startTime: '09:00', endTime: '17:00' }]
       : [],
   }));
+}
+
+/**
+ * Transform backend availability slots to DayAvailabilityDTO format
+ * Groups slots by dayOfWeek and creates DayAvailabilityDTO objects
+ */
+export function transformAvailabilitySlotsToSchedule(
+  slots: AvailabilitySlotDTO[]
+): DayAvailabilityDTO[] {
+  // Group slots by dayOfWeek
+  const slotsByDay = new Map<DayOfWeek, AvailabilitySlotDTO[]>();
+  
+  for (const slot of slots) {
+    const day = slot.dayOfWeek;
+    if (!slotsByDay.has(day)) {
+      slotsByDay.set(day, []);
+    }
+    slotsByDay.get(day)!.push(slot);
+  }
+
+  // Create DayAvailabilityDTO for all 7 days
+  const allDays: DayAvailabilityDTO[] = [
+    DayOfWeek.MONDAY,
+    DayOfWeek.TUESDAY,
+    DayOfWeek.WEDNESDAY,
+    DayOfWeek.THURSDAY,
+    DayOfWeek.FRIDAY,
+    DayOfWeek.SATURDAY,
+    DayOfWeek.SUNDAY,
+  ].map((dayOfWeek) => {
+    const daySlots = slotsByDay.get(dayOfWeek) || [];
+    
+    return {
+      dayOfWeek,
+      enabled: daySlots.length > 0,
+      timeSlots: daySlots.map((slot) => ({
+        startTime: slot.startTime,
+        endTime: slot.endTime,
+      })),
+    };
+  });
+
+  return allDays;
+}
+
+/**
+ * Transform DayAvailabilityDTO schedule back to AvailabilitySlotDTO format
+ * Used when sending updates to the backend
+ */
+export function transformScheduleToAvailabilitySlots(
+  schedule: DayAvailabilityDTO[]
+): Omit<AvailabilitySlotDTO, 'id'>[] {
+  const slots: Omit<AvailabilitySlotDTO, 'id'>[] = [];
+  
+  for (const day of schedule) {
+    if (day.enabled && day.timeSlots.length > 0) {
+      for (const timeSlot of day.timeSlots) {
+        slots.push({
+          dayOfWeek: day.dayOfWeek,
+          startTime: timeSlot.startTime,
+          endTime: timeSlot.endTime,
+        });
+      }
+    }
+  }
+  
+  return slots;
 }
 

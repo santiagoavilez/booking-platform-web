@@ -9,6 +9,7 @@ import SignupPage from '@/features/auth/pages/signup/page';
 // Authenticated pages
 import HomePage from '@/features/home/pages/HomePage';
 import AvailabilityPage from '@/features/availability/pages/AvailabilityPage';
+import ProfessionalBookingPage from '@/features/availability/pages/ProfessionalBookingPage';
 
 // Error pages
 import NotFoundPage from '@/app/pages/NotFoundPage';
@@ -64,6 +65,12 @@ const router = createBrowserRouter([
       //   element: <AppointmentsPage />,
       // },
     ],
+  },
+
+  // Public booking route - No authentication required
+  {
+    path: '/booking/:userId',
+    element: <ProfessionalBookingPage />,
   },
 
   // Catch-all 404 route
