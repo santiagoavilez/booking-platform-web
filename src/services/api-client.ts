@@ -40,9 +40,25 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Clear auth data and redirect to login
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-      window.location.href = '/login';
+      // Only redirect to login if not on a public route
+      const currentPath = window.location.pathname;
+      const publicRoutes = ['/login', '/signup'];
+      const isPublicRoute = publicRoutes.includes(currentPath);
+      
+      // Check if current path is a professional booking page (public)
+      const isProfessionalBookingPage = currentPath.startsWith('/professional/');
+      
+      if (!isPublicRoute && !isProfessionalBookingPage) {
+        // Clear auth data and redirect to login
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+        window.location.href = '/login';
+      }
+      // For public routes (including professional booking), don't redirect
+      // Just clear auth data silently
+      else if (!isPublicRoute && isProfessionalBookingPage) {
+        // Don't clear auth data or redirect for public professional pages
+        // The API call might fail, but that's handled by the component
+      }
     }
     return Promise.reject(error);
   }

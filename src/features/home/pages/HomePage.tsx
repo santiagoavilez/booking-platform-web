@@ -90,30 +90,57 @@ export default function HomePage() {
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             {/* Availability - Only for professionals */}
                             {isProfessional && (
-                                <Card
-                                    className="cursor-pointer transition-all hover:border-primary/50 hover:shadow-md"
-                                    onClick={() => navigate('/availability')}
-                                >
-                                    <CardContent className="flex flex-col items-center justify-center p-6 text-center">
-                                        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                                            <svg
-                                                className="h-6 w-6 text-primary"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth={2}
-                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                                />
-                                            </svg>
-                                        </div>
-                                        <p className="font-medium">Mi disponibilidad</p>
-                                        <p className="text-xs text-muted-foreground">Configura tus horarios</p>
-                                    </CardContent>
-                                </Card>
+                                <>
+                                    <Card
+                                        className="cursor-pointer transition-all hover:border-primary/50 hover:shadow-md"
+                                        onClick={() => navigate('/availability')}
+                                    >
+                                        <CardContent className="flex flex-col items-center justify-center p-6 text-center">
+                                            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                                                <svg
+                                                    className="h-6 w-6 text-primary"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                    />
+                                                </svg>
+                                            </div>
+                                            <p className="font-medium">Mi disponibilidad</p>
+                                            <p className="text-xs text-muted-foreground">Configura tus horarios</p>
+                                        </CardContent>
+                                    </Card>
+                                    
+                                    <Card
+                                        className="cursor-pointer transition-all hover:border-primary/50 hover:shadow-md"
+                                        onClick={() => navigate(`/professional/${user.id}`)}
+                                    >
+                                        <CardContent className="flex flex-col items-center justify-center p-6 text-center">
+                                            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                                                <svg
+                                                    className="h-6 w-6 text-primary"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                                                    />
+                                                </svg>
+                                            </div>
+                                            <p className="font-medium">Compartir disponibilidad</p>
+                                            <p className="text-xs text-muted-foreground">Ver mi página pública</p>
+                                        </CardContent>
+                                    </Card>
+                                </>
                             )}
 
                             <Card className="cursor-not-allowed opacity-60">

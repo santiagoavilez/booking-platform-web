@@ -94,11 +94,13 @@ export function generateTimeOptions(): string[] {
  * Format time from 24h to 12h display format
  */
 export function formatTimeDisplay(time: string): string {
-  const [hours] = time.split(':');
+  const [hours, minutes] = time.split(':');
   const hour = parseInt(hours, 10);
+  const minute = parseInt(minutes || '0', 10);
   const period = hour >= 12 ? 'PM' : 'AM';
   const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-  return `${displayHour.toString().padStart(2, '0')}:00 ${period}`;
+  const displayMinute = minute === 0 ? '' : `:${minutes}`;
+  return `${displayHour}${displayMinute} ${period}`;
 }
 
 /**

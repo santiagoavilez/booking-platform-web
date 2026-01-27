@@ -1,105 +1,125 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { AlertCircle, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { useProfessionalAvailability } from '../hooks';
-import { BookingCalendar } from '../components/BookingCalendar';
-import { TimeSlotsList } from '../components/TimeSlotsList';
-import { ProfessionalBookingSkeleton } from '../components/ProfessionalBookingSkeleton';
-import type { TimeSlotDTO, DayAvailabilityDTO } from '@/shared/dtos/availability.dto';
-import { DayOfWeek } from '@/shared/dtos/availability.dto';
+import { useAppointmentsByDate } from '@/features/appointments';
+import {
+  BookingCalendar,
+  TimeSlotsList,
+  ProfessionalBookingSkeleton,
+  BookingErrorState,
+  ProfessionalInfoCard,
+  BookingEmptyState,
+  BookingPageHeader,
+} from '../components';
+import { Card, CardContent } from '@/components/ui/card';
+import type { TimeSlotDTO } from '@/shared/dtos/availability.dto';
+import {
+  calculateAvailableDates,
+  getTimeSlotsForDate,
+  formatDateString,
+  parseDateString,
+} from '@/lib/availability-utils';
 
+/**
+ * Professional Booking Page
+ * 
+ * Displays a booking interface for clients to select dates and time slots
+ * for a specific professional. Handles availability display, appointment
+ * filtering, and booking selection.
+ */
 export default function ProfessionalBookingPage() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlotDTO | null>(null);
 
+  // Fetch professional availability
   const {
     data: availability,
     isLoading,
-    isError,
     error,
   } = useProfessionalAvailability(userId || '');
 
-  // Calculate available dates from the weekly schedule
+  // Fetch appointments for selected date (placeholder - returns empty array for now)
+  const selectedDateStr = selectedDate ? formatDateString(selectedDate) : '';
+  const { data: appointments = [] } = useAppointmentsByDate(
+    userId || '',
+    selectedDateStr
+  );
+
+  // Calculate available dates from weekly schedule
   const availableDates = useMemo(() => {
     if (!availability?.schedule) return new Set<string>();
-
-    const dates = new Set<string>();
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    // Look ahead 60 days
-    for (let i = 0; i < 60; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      const dayOfWeek = date.getDay() as DayOfWeek;
-
-      // Find availability for this day of week
-      const dayAvailability = availability.schedule.find(
-        (day) => day.dayOfWeek === dayOfWeek && day.enabled
-      );
-
-      if (dayAvailability && dayAvailability.timeSlots.length > 0) {
-        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-        dates.add(dateStr);
-      }
-    }
-
-    return dates;
+    return calculateAvailableDates(availability.schedule);
   }, [availability]);
 
   // Get time slots for selected date
   const timeSlotsForDate = useMemo(() => {
     if (!selectedDate || !availability?.schedule) return [];
-
-    const dayOfWeek = selectedDate.getDay() as DayOfWeek;
-    const dayAvailability = availability.schedule.find(
-      (day) => day.dayOfWeek === dayOfWeek && day.enabled
-    );
-
-    return dayAvailability?.timeSlots || [];
+    return getTimeSlotsForDate(selectedDate, availability.schedule);
   }, [selectedDate, availability]);
 
-  // Error handling
-  if (isError) {
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : 'Error al cargar la disponibilidad';
+  // Auto-select first available date if none selected
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!selectedDate && availableDates.size > 0 && !isLoading) {
+      const today = new Date();
+      const sortedDates = Array.from(availableDates)
+        .map(parseDateString)
+        .sort((a, b) => a.getTime() - b.getTime())
+        .filter((d) => d >= today);
 
-    // Check if it's a 404 or user not found
-    const isNotFound =
-      errorMessage.includes('404') ||
-      errorMessage.includes('not found') ||
-      errorMessage.includes('No encontrado');
+      if (sortedDates.length > 0) {
+        setSelectedDate(sortedDates[0]);
+      }
+    }
+    // Note: We intentionally exclude selectedDate from deps to avoid infinite loop
+    // This effect only runs when availability data loads or changes
+  }, [availableDates, isLoading]);
+
+  // Handle missing userId
+  if (!userId) {
+    return (
+      <div className="min-h-svh">
+        <BookingPageHeader title="ID de usuario requerido" onBack={() => navigate('/')} />
+        <main className="mx-auto max-w-2xl px-3 py-8 md:px-6">
+          <BookingErrorState
+            title="ID de usuario no válido"
+            message="Por favor, proporciona un ID de usuario válido en la URL."
+            onBack={() => navigate('/')}
+          />
+        </main>
+      </div>
+    );
+  }
+
+  // Handle errors
+  if (error) {
+    const axiosError = error as { response?: { status?: number }; message?: string };
+    const status = axiosError.response?.status;
+    
+    let title = 'Error al cargar disponibilidad';
+    let message = 'Ocurrió un error al cargar la disponibilidad. Por favor, intenta de nuevo más tarde.';
+    let variant: 'error' | 'warning' = 'error';
+
+    if (status === 404) {
+      title = 'Usuario no encontrado';
+      message = 'El profesional que buscas no existe o no está disponible.';
+    } else if (status === 401) {
+      title = 'Acceso no autorizado';
+      message = 'No tienes permisos para ver esta disponibilidad.';
+    } else if (status === 400) {
+      title = 'Sin disponibilidad';
+      message = 'Este profesional aún no ha configurado sus horarios de disponibilidad.';
+      variant = 'warning';
+    }
 
     return (
-      <div className="min-h-svh flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center gap-4 text-center">
-              <AlertCircle className="h-12 w-12 text-destructive" />
-              <div className="space-y-2">
-                <h2 className="text-lg font-semibold">
-                  {isNotFound
-                    ? 'Profesional no encontrado'
-                    : 'Error al cargar disponibilidad'}
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  {isNotFound
-                    ? 'El profesional que buscas no existe o no tiene disponibilidad configurada.'
-                    : 'No se pudo cargar la disponibilidad. Por favor, intenta de nuevo más tarde.'}
-                </p>
-              </div>
-              <Button variant="outline" onClick={() => navigate('/')}>
-                Volver al inicio
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="min-h-svh">
+        <BookingPageHeader title="Disponibilidad no encontrada" onBack={() => navigate('/')} />
+        <main className="mx-auto max-w-2xl px-3 py-8 md:px-6">
+          <BookingErrorState title={title} message={message} onBack={() => navigate('/')} variant={variant} />
+        </main>
       </div>
     );
   }
@@ -110,93 +130,40 @@ export default function ProfessionalBookingPage() {
   }
 
   // No availability configured
-  if (!availability || !availability.schedule || availability.schedule.length === 0) {
+  if (!availability || availableDates.size === 0) {
     return (
-      <div className="min-h-svh flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center gap-4 text-center">
-              <AlertCircle className="h-12 w-12 text-muted-foreground" />
-              <div className="space-y-2">
-                <h2 className="text-lg font-semibold">
-                  Sin disponibilidad configurada
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Este profesional aún no ha configurado sus horarios de disponibilidad.
-                </p>
-              </div>
-              <Button variant="outline" onClick={() => navigate('/')}>
-                Volver al inicio
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Check if there are any enabled days with time slots
-  const hasAnyAvailability = availability.schedule.some(
-    (day) => day.enabled && day.timeSlots.length > 0
-  );
-
-  if (!hasAnyAvailability) {
-    return (
-      <div className="min-h-svh flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center gap-4 text-center">
-              <AlertCircle className="h-12 w-12 text-muted-foreground" />
-              <div className="space-y-2">
-                <h2 className="text-lg font-semibold">
-                  Sin horarios disponibles
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Este profesional no tiene horarios disponibles configurados.
-                </p>
-              </div>
-              <Button variant="outline" onClick={() => navigate('/')}>
-                Volver al inicio
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="min-h-svh">
+        <BookingPageHeader title="Sin disponibilidad" onBack={() => navigate('/')} />
+        <main className="mx-auto max-w-2xl px-3 py-8 md:px-6">
+          <BookingErrorState
+            title="No hay disponibilidad configurada"
+            message="Este profesional aún no ha configurado sus horarios de disponibilidad."
+            onBack={() => navigate('/')}
+            variant="warning"
+          />
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="min-h-svh bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 md:px-6 md:py-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/')}
-            className="size-9 shrink-0"
-          >
-            <ArrowLeft className="size-5" />
-            <span className="sr-only">Volver</span>
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-base font-semibold tracking-tight md:text-lg">
-              Selecciona una fecha y hora
-            </h1>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-svh">
+      <BookingPageHeader
+        title="Selecciona una fecha y hora"
+        onBack={() => navigate('/')}
+      />
 
-      {/* Main content */}
-      <main className="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-8">
-        <div className="grid gap-6 md:grid-cols-3 lg:gap-8">
-          {/* Left column - Calendar */}
-          <div className="md:col-span-2">
-            <Card>
+      <main className="mx-auto max-w-6xl px-3 py-6 md:px-6 md:py-8">
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Left section - Professional info */}
+          <div className="lg:col-span-1">
+            <ProfessionalInfoCard professionalId={availability.professionalId} />
+          </div>
+
+          {/* Middle section - Calendar */}
+          <div className="lg:col-span-1">
+            <Card className="bg-muted/30">
               <CardContent className="p-4 md:p-6">
-                <h2 className="mb-4 text-base font-semibold md:text-lg">
-                  Selecciona una fecha
-                </h2>
                 <BookingCalendar
                   selectedDate={selectedDate}
                   onDateSelect={setSelectedDate}
@@ -206,42 +173,28 @@ export default function ProfessionalBookingPage() {
             </Card>
           </div>
 
-          {/* Right column - Time slots */}
-          <div className="md:col-span-1">
-            <Card>
+          {/* Right section - Time slots */}
+          <div className="lg:col-span-1">
+            <Card className="bg-muted/30">
               <CardContent className="p-4 md:p-6">
-                {selectedDate ? (
+                {selectedDate && timeSlotsForDate.length > 0 ? (
                   <TimeSlotsList
-                    slots={timeSlotsForDate}
+                    selectedDate={selectedDate}
+                    timeSlots={timeSlotsForDate}
                     selectedSlot={selectedSlot}
                     onSlotSelect={setSelectedSlot}
-                    date={selectedDate}
+                    appointments={appointments}
+                  />
+                ) : selectedDate ? (
+                  <BookingEmptyState
+                    title="Sin horarios disponibles"
+                    message="No hay horarios disponibles para este día."
                   />
                 ) : (
-                  <div className="py-8 text-center">
-                    <p className="text-sm text-muted-foreground">
-                      Selecciona una fecha en el calendario para ver los horarios disponibles
-                    </p>
-                  </div>
-                )}
-
-                {/* Confirm button */}
-                {selectedDate && selectedSlot && (
-                  <div className="mt-6 pt-6 border-t">
-                    <Button
-                      className="w-full"
-                      onClick={() => {
-                        // TODO: Navigate to booking confirmation page
-                        console.log('Booking:', {
-                          date: selectedDate,
-                          slot: selectedSlot,
-                          professionalId: userId,
-                        });
-                      }}
-                    >
-                      Confirmar cita
-                    </Button>
-                  </div>
+                  <BookingEmptyState
+                    title="Selecciona una fecha"
+                    message="Elige una fecha en el calendario para ver los horarios disponibles."
+                  />
                 )}
               </CardContent>
             </Card>

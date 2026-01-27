@@ -1,9 +1,11 @@
 import { apiClient } from '@/services/api-client';
 import type {
   AvailabilityResponseDTO,
+  AvailabilitySlotDTO,
   UpdateAvailabilityRequestDTO,
   WeeklyAvailabilityDTO,
 } from '@/shared/dtos/availability.dto';
+import { transformAvailabilitySlotsToSchedule } from '@/shared/dtos/availability.dto';
 
 /**
  * Availability API endpoints
@@ -33,10 +35,19 @@ export const availabilityApi = {
   getProfessionalAvailability: async (
     professionalId: string
   ): Promise<WeeklyAvailabilityDTO> => {
-    const response = await apiClient.get<{ success: boolean; data: WeeklyAvailabilityDTO }>(
-      `/availability/${professionalId}`
-    );
-    return response.data.data;
+    const response = await apiClient.get<{
+      success: boolean;
+      data: { availabilities: AvailabilitySlotDTO[] };
+    }>(`/availability/${professionalId}`);
+    
+    // Transform backend response to WeeklyAvailabilityDTO
+    const slots = response.data.data.availabilities || [];
+    const schedule = transformAvailabilitySlotsToSchedule(slots);
+    
+    return {
+      professionalId,
+      schedule,
+    };
   },
 };
 

@@ -2,14 +2,13 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { DayOfWeek, DAY_NAMES } from '@/shared/dtos/availability.dto';
+import { DayOfWeek } from '@/shared/dtos/availability.dto';
+import { formatDateString } from '@/lib/availability-utils';
 
 interface BookingCalendarProps {
   selectedDate: Date | null;
   onDateSelect: (date: Date) => void;
-  availableDates?: Set<string>; // Set of date strings in YYYY-MM-DD format
-  minDate?: Date;
-  maxDate?: Date;
+  availableDates: Set<string>; // Set of dates in YYYY-MM-DD format that have availability
 }
 
 const MONTH_NAMES = [
@@ -27,14 +26,12 @@ const MONTH_NAMES = [
   'Diciembre',
 ];
 
-const DAY_ABBREVIATIONS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+const DAY_NAMES_SHORT = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
 export function BookingCalendar({
   selectedDate,
   onDateSelect,
   availableDates,
-  minDate,
-  maxDate,
 }: BookingCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
@@ -47,7 +44,7 @@ export function BookingCalendar({
   const daysInMonth = lastDayOfMonth.getDate();
   const startingDayOfWeek = firstDayOfMonth.getDay();
 
-  // Navigation
+  // Navigate months
   const goToPreviousMonth = () => {
     setCurrentMonth(new Date(year, month - 1, 1));
   };
@@ -57,43 +54,30 @@ export function BookingCalendar({
   };
 
   // Check if date is available
-  const isDateAvailable = (date: Date): boolean => {
-    if (!availableDates) return true;
-    const dateStr = formatDateKey(date);
+  const isDateAvailable = (day: number): boolean => {
+    const date = new Date(year, month, day);
+    const dateStr = formatDateString(date);
     return availableDates.has(dateStr);
   };
 
-  // Check if date is selectable
-  const isDateSelectable = (date: Date): boolean => {
+  // Check if date is today
+  const isToday = (day: number): boolean => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    if (date < today) return false;
-    if (minDate && date < minDate) return false;
-    if (maxDate && date > maxDate) return false;
-    if (!isDateAvailable(date)) return false;
-    return true;
-  };
-
-  // Format date as YYYY-MM-DD
-  const formatDateKey = (date: Date): string => {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const date = new Date(year, month, day);
+    return formatDateString(today) === formatDateString(date);
   };
 
   // Check if date is selected
-  const isSelected = (date: Date): boolean => {
+  const isSelected = (day: number): boolean => {
     if (!selectedDate) return false;
-    return (
-      date.getDate() === selectedDate.getDate() &&
-      date.getMonth() === selectedDate.getMonth() &&
-      date.getFullYear() === selectedDate.getFullYear()
-    );
+    const date = new Date(year, month, day);
+    return formatDateString(selectedDate) === formatDateString(date);
   };
 
   // Handle date click
   const handleDateClick = (day: number) => {
     const date = new Date(year, month, day);
-    if (isDateSelectable(date)) {
+    if (isDateAvailable(day)) {
       onDateSelect(date);
     }
   };
@@ -101,12 +85,12 @@ export function BookingCalendar({
   // Generate calendar days
   const calendarDays: (number | null)[] = [];
   
-  // Add empty cells for days before the first day of the month
+  // Add empty cells for days before the first day of month
   for (let i = 0; i < startingDayOfWeek; i++) {
     calendarDays.push(null);
   }
   
-  // Add days of the month
+  // Add all days of the month
   for (let day = 1; day <= daysInMonth; day++) {
     calendarDays.push(day);
   }
@@ -116,36 +100,40 @@ export function BookingCalendar({
       {/* Month navigation */}
       <div className="mb-4 flex items-center justify-between">
         <Button
+          type="button"
           variant="ghost"
           size="icon"
           onClick={goToPreviousMonth}
-          className="h-8 w-8"
+          className="size-8"
           aria-label="Mes anterior"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="size-4" />
         </Button>
-        <h3 className="text-base font-semibold md:text-lg">
+        
+        <h3 className="text-sm font-semibold md:text-base">
           {MONTH_NAMES[month]} {year}
         </h3>
+        
         <Button
+          type="button"
           variant="ghost"
           size="icon"
           onClick={goToNextMonth}
-          className="h-8 w-8"
+          className="size-8"
           aria-label="Mes siguiente"
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="size-4" />
         </Button>
       </div>
 
-      {/* Day headers */}
+      {/* Day names header */}
       <div className="mb-2 grid grid-cols-7 gap-1">
-        {DAY_ABBREVIATIONS.map((day) => (
+        {DAY_NAMES_SHORT.map((dayName) => (
           <div
-            key={day}
-            className="flex items-center justify-center py-2 text-xs font-medium text-muted-foreground md:text-sm"
+            key={dayName}
+            className="text-center text-xs font-medium text-muted-foreground"
           >
-            {day}
+            {dayName}
           </div>
         ))}
       </div>
@@ -157,28 +145,29 @@ export function BookingCalendar({
             return <div key={`empty-${index}`} className="aspect-square" />;
           }
 
-          const date = new Date(year, month, day);
-          const selectable = isDateSelectable(date);
-          const available = isDateAvailable(date);
-          const selected = isSelected(date);
+          const available = isDateAvailable(day);
+          const selected = isSelected(day);
+          const today = isToday(day);
 
           return (
             <button
               key={day}
               type="button"
               onClick={() => handleDateClick(day)}
-              disabled={!selectable}
+              disabled={!available}
               className={cn(
                 'aspect-square rounded-md text-sm transition-colors',
-                'hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
-                'disabled:cursor-not-allowed disabled:opacity-30',
-                selected
-                  ? 'bg-primary text-primary-foreground font-semibold'
-                  : available && selectable
-                    ? 'bg-muted/50 text-foreground hover:bg-muted'
-                    : 'text-muted-foreground',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                {
+                  'cursor-pointer hover:bg-primary/10': available,
+                  'cursor-not-allowed opacity-30': !available,
+                  'bg-primary text-primary-foreground': selected,
+                  'border-2 border-primary': today && !selected,
+                  'bg-primary/20': available && !selected && !today,
+                }
               )}
-              aria-label={`Seleccionar ${day} de ${MONTH_NAMES[month]}`}
+              aria-label={`${day} de ${MONTH_NAMES[month]}`}
+              aria-pressed={selected}
             >
               {day}
             </button>

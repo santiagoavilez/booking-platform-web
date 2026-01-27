@@ -9,6 +9,8 @@ import SignupPage from '@/features/auth/pages/signup/page';
 // Authenticated pages
 import HomePage from '@/features/home/pages/HomePage';
 import AvailabilityPage from '@/features/availability/pages/AvailabilityPage';
+
+// Public pages
 import ProfessionalBookingPage from '@/features/availability/pages/ProfessionalBookingPage';
 
 // Error pages
@@ -43,6 +45,12 @@ const router = createBrowserRouter([
     ],
   },
 
+  // Public booking page - Accessible without authentication
+  {
+    path: '/professional/:userId',
+    element: <ProfessionalBookingPage />,
+  },
+
   // Protected routes - Require authentication
   {
     element: <AuthGuard redirectTo="/login" />,
@@ -65,12 +73,6 @@ const router = createBrowserRouter([
       //   element: <AppointmentsPage />,
       // },
     ],
-  },
-
-  // Public booking route - No authentication required
-  {
-    path: '/booking/:userId',
-    element: <ProfessionalBookingPage />,
   },
 
   // Catch-all 404 route

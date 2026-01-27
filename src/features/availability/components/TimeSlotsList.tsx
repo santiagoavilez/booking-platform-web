@@ -1,119 +1,125 @@
 import { Button } from '@/components/ui/button';
 import { formatTimeDisplay } from '@/shared/dtos/availability.dto';
 import type { TimeSlotDTO } from '@/shared/dtos/availability.dto';
+import type { AppointmentDTO } from '@/shared/dtos/appointment.dto';
+import { cn } from '@/lib/utils';
+import {
+  generateTimeSlotsFromRanges,
+  filterAvailableTimeSlots,
+} from '@/lib/availability-utils';
 
 interface TimeSlotsListProps {
-  slots: TimeSlotDTO[];
+  selectedDate: Date;
+  timeSlots: TimeSlotDTO[];
   selectedSlot: TimeSlotDTO | null;
   onSlotSelect: (slot: TimeSlotDTO) => void;
-  date: Date;
-}
-
-/**
- * Generate time slots from a range (e.g., 09:00-17:00 generates slots every hour)
- */
-function generateTimeSlotsFromRange(startTime: string, endTime: string): string[] {
-  const slots: string[] = [];
-  const [startHour] = startTime.split(':').map(Number);
-  const [endHour] = endTime.split(':').map(Number);
-
-  for (let hour = startHour; hour < endHour; hour++) {
-    slots.push(`${hour.toString().padStart(2, '0')}:00`);
-  }
-
-  return slots;
+  appointments?: AppointmentDTO[]; // Optional: appointments to mark slots as occupied
 }
 
 export function TimeSlotsList({
-  slots,
+  selectedDate,
+  timeSlots,
   selectedSlot,
   onSlotSelect,
-  date,
+  appointments = [],
 }: TimeSlotsListProps) {
-  // Generate all available time slots from the ranges
-  const allTimeSlots: string[] = [];
-  
-  for (const slot of slots) {
-    const hourSlots = generateTimeSlotsFromRange(slot.startTime, slot.endTime);
-    allTimeSlots.push(...hourSlots);
-  }
-
-  // Remove duplicates and sort
-  const uniqueSlots = Array.from(new Set(allTimeSlots)).sort((a, b) => {
-    return a.localeCompare(b);
+  const dayName = selectedDate.toLocaleDateString('es-ES', { weekday: 'long' });
+  const dateStr = selectedDate.toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'long',
   });
 
-  if (uniqueSlots.length === 0) {
-    return (
-      <div className="py-8 text-center">
-        <p className="text-sm text-muted-foreground">
-          No hay horarios disponibles para este día
-        </p>
-      </div>
-    );
-  }
+  // Generate all time slots from ranges
+  const allSlots = generateTimeSlotsFromRanges(timeSlots);
+  
+  // Filter out occupied slots
+  const availableSlots = filterAvailableTimeSlots(allSlots, selectedDate, appointments);
+  
+  // Get occupied slots for display
+  const occupiedSlots = allSlots.filter(
+    (slot) => !availableSlots.includes(slot)
+  );
 
-  const formatDateDisplay = (date: Date): string => {
-    const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-    const months = [
-      'enero',
-      'febrero',
-      'marzo',
-      'abril',
-      'mayo',
-      'junio',
-      'julio',
-      'agosto',
-      'septiembre',
-      'octubre',
-      'noviembre',
-      'diciembre',
-    ];
-    
-    return `${days[date.getDay()]}, ${date.getDate()} de ${months[date.getMonth()]}`;
+  // Calculate end time for a selected slot (1 hour after start time)
+  const calculateEndTime = (startTime: string): string => {
+    const [hours, minutes] = startTime.split(':').map(Number);
+    const endHour = hours + 1;
+    return `${endHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  };
+
+  // Find the range that contains a time slot
+  const findContainingRange = (time: string): TimeSlotDTO | null => {
+    return (
+      timeSlots.find((range) => {
+        const start = parseInt(range.startTime.replace(':', ''), 10);
+        const end = parseInt(range.endTime.replace(':', ''), 10);
+        const current = parseInt(time.replace(':', ''), 10);
+        return current >= start && current < end;
+      }) || null
+    );
   };
 
   return (
     <div className="w-full">
-      <h3 className="mb-4 text-base font-semibold md:text-lg">
-        {formatDateDisplay(date)}
-      </h3>
-      
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3">
-        {uniqueSlots.map((time) => {
-          // Find the slot range this time belongs to
-          const slotRange = slots.find(
-            (s) => time >= s.startTime && time < s.endTime
-          );
-          
-          if (!slotRange) return null;
+      <div className="mb-4">
+        <h3 className="text-base font-semibold capitalize md:text-lg">
+          {dayName}, {dateStr}
+        </h3>
+        <p className="mt-1 text-xs text-muted-foreground md:text-sm">
+          Selecciona un horario disponible
+        </p>
+      </div>
 
-          // Calculate end time (1 hour after start)
-          const [hour] = time.split(':').map(Number);
-          const endHour = (hour + 1) % 24;
-          const endTime = `${endHour.toString().padStart(2, '0')}:00`;
+      {availableSlots.length === 0 && occupiedSlots.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          No hay horarios disponibles para este día.
+        </p>
+      ) : (
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:flex md:flex-col">
+          {/* Available slots */}
+          {availableSlots.map((time) => {
+            const isSelected = selectedSlot?.startTime === time;
+            const containingRange = findContainingRange(time);
 
-          const slot: TimeSlotDTO = {
-            startTime: time,
-            endTime: endTime,
-          };
+            return (
+              <Button
+                key={time}
+                type="button"
+                variant={isSelected ? 'default' : 'outline'}
+                onClick={() => {
+                  if (containingRange) {
+                    // Calculate end time as 1 hour after start time
+                    const endTime = calculateEndTime(time);
+                    onSlotSelect({
+                      startTime: time,
+                      endTime,
+                    });
+                  }
+                }}
+                className={cn(
+                  'h-auto min-h-[44px] py-2 text-sm',
+                  isSelected && 'bg-primary text-primary-foreground'
+                )}
+              >
+                {formatTimeDisplay(time)}
+              </Button>
+            );
+          })}
 
-          const isSelected =
-            selectedSlot?.startTime === slot.startTime &&
-            selectedSlot?.endTime === slot.endTime;
-
-          return (
+          {/* Occupied slots (disabled) */}
+          {occupiedSlots.map((time) => (
             <Button
               key={time}
-              variant={isSelected ? 'default' : 'outline'}
-              onClick={() => onSlotSelect(slot)}
-              className="h-auto py-2.5 text-sm"
+              type="button"
+              variant="outline"
+              disabled
+              className="h-auto min-h-[44px] py-2 text-sm opacity-50 cursor-not-allowed"
             >
-              {formatTimeDisplay(time)}
+              {formatTimeDisplay(time)} (Ocupado)
             </Button>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

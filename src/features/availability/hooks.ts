@@ -57,6 +57,10 @@ export function useProfessionalAvailability(professionalId: string) {
     queryKey: ['availability', professionalId],
     queryFn: () => availabilityApi.getProfessionalAvailability(professionalId),
     enabled: !!professionalId,
+    retry: false, // Don't retry on error for public pages
+    throwOnError: false, // Let component handle errors
+    staleTime: 1000 * 60 * 5, // 5 minutes - handle 304 Not Modified
+    gcTime: 1000 * 60 * 10, // 10 minutes cache time
   });
 }
 

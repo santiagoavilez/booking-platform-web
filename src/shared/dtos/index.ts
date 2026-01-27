@@ -24,3 +24,14 @@ export type {
   UpdateAvailabilityRequestDTO,
   AvailabilityResponseDTO,
 } from './availability.dto';
+
+export {
+  AppointmentStatus,
+} from './appointment.dto';
+
+export type {
+  AppointmentDTO,
+  CreateAppointmentRequestDTO,
+  AppointmentResponseDTO,
+  AppointmentsListResponseDTO,
+} from './appointment.dto';
