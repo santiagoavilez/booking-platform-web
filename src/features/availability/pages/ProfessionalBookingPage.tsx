@@ -13,6 +13,7 @@ import {
 } from '../components';
 import { Card, CardContent } from '@/components/ui/card';
 import type { TimeSlotDTO } from '@/shared/dtos/availability.dto';
+import { formatProfessionalName } from '@/shared/dtos/availability.dto';
 import {
   calculateAvailableDates,
   getTimeSlotsForDate,
@@ -157,7 +158,13 @@ export default function ProfessionalBookingPage() {
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Left section - Professional info */}
           <div className="lg:col-span-1">
-            <ProfessionalInfoCard professionalId={availability.professionalId} />
+            <ProfessionalInfoCard
+              professionalId={availability.professionalId}
+              professionalName={formatProfessionalName(
+                availability.professionalFirstName,
+                availability.professionalLastName
+              )}
+            />
           </div>
 
           {/* Middle section - Calendar */}

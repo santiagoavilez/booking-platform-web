@@ -37,15 +37,24 @@ export const availabilityApi = {
   ): Promise<WeeklyAvailabilityDTO> => {
     const response = await apiClient.get<{
       success: boolean;
-      data: { availabilities: AvailabilitySlotDTO[] };
+      data: {
+        availabilities: AvailabilitySlotDTO[];
+        professional?: {
+          firstName: string;
+          lastName: string;
+        };
+      };
     }>(`/availability/${professionalId}`);
     
     // Transform backend response to WeeklyAvailabilityDTO
     const slots = response.data.data.availabilities || [];
     const schedule = transformAvailabilitySlotsToSchedule(slots);
+    const professional = response.data.data.professional;
     
     return {
       professionalId,
+      professionalFirstName: professional?.firstName,
+      professionalLastName: professional?.lastName,
       schedule,
     };
   },

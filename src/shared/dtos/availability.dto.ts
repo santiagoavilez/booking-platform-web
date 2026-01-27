@@ -49,6 +49,8 @@ export interface DayAvailabilityDTO {
  */
 export interface WeeklyAvailabilityDTO {
   professionalId: string;
+  professionalFirstName?: string;
+  professionalLastName?: string;
   schedule: DayAvailabilityDTO[];
 }
 
@@ -210,5 +212,21 @@ export function transformScheduleToAvailabilitySlots(
   }
   
   return slots;
+}
+
+/**
+ * Format professional full name from first and last name
+ * Returns formatted name or undefined if both are missing
+ */
+export function formatProfessionalName(
+  firstName?: string,
+  lastName?: string
+): string | undefined {
+  if (!firstName && !lastName) {
+    return undefined;
+  }
+  
+  const parts = [firstName, lastName].filter(Boolean);
+  return parts.length > 0 ? parts.join(' ') : undefined;
 }
 
