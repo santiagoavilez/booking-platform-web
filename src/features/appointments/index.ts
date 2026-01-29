@@ -1,2 +1,6 @@
 export { appointmentsApi } from './api';
-export { useProfessionalAppointments, useAppointmentsByDate } from './hooks';
+export { 
+  useProfessionalAppointments, 
+  useAppointmentsByDate,
+  useCreateAppointment 
+} from './hooks';

@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useProfessionalAvailability } from '../hooks';
-import { useAppointmentsByDate } from '@/features/appointments';
+import { useAppointmentsByDate, useCreateAppointment } from '@/features/appointments';
 import {
   BookingCalendar,
   TimeSlotsList,
@@ -41,12 +42,15 @@ export default function ProfessionalBookingPage() {
     error,
   } = useProfessionalAvailability(userId || '');
 
-  // Fetch appointments for selected date (placeholder - returns empty array for now)
+  // Fetch appointments for selected date
   const selectedDateStr = selectedDate ? formatDateString(selectedDate) : '';
   const { data: appointments = [] } = useAppointmentsByDate(
     userId || '',
     selectedDateStr
   );
+
+  // Create appointment mutation
+  const createAppointment = useCreateAppointment();
 
   // Calculate available dates from weekly schedule
   const availableDates = useMemo(() => {
@@ -59,6 +63,28 @@ export default function ProfessionalBookingPage() {
     if (!selectedDate || !availability?.schedule) return [];
     return getTimeSlotsForDate(selectedDate, availability.schedule);
   }, [selectedDate, availability]);
+
+  // Handle booking confirmation
+  const handleConfirmBooking = async (slot: TimeSlotDTO) => {
+    if (!selectedDate || !userId) return;
+
+    try {
+      await createAppointment.mutateAsync({
+        professionalId: userId,
+        date: formatDateString(selectedDate),
+        startTime: slot.startTime,
+        endTime: slot.endTime,
+      });
+
+      toast.success('Cita reservada exitosamente');
+      setSelectedSlot(null); // Reset selected slot after successful booking
+    } catch (error) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Error al reservar la cita. Por favor, intenta de nuevo.';
+      toast.error(errorMessage);
+    }
+  };
 
   // Auto-select first available date if none selected
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -191,6 +217,12 @@ export default function ProfessionalBookingPage() {
                     selectedSlot={selectedSlot}
                     onSlotSelect={setSelectedSlot}
                     appointments={appointments}
+                    onConfirmBooking={handleConfirmBooking}
+                    professionalName={formatProfessionalName(
+                      availability.professionalFirstName,
+                      availability.professionalLastName
+                    )}
+                    isLoading={createAppointment.isPending}
                   />
                 ) : selectedDate ? (
                   <BookingEmptyState

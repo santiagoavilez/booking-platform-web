@@ -8,35 +8,33 @@ import type {
 
 /**
  * Appointments API endpoints
- * Placeholder implementation for future booking functionality
+ * Follows Clean Architecture: Infrastructure layer for external API communication
  */
 export const appointmentsApi = {
   /**
-   * Get appointments for a professional (placeholder)
+   * Get appointments for a professional within a date range
    * @param professionalId - The professional's ID
-   * @param startDate - Start date for filtering (ISO string)
-   * @param endDate - End date for filtering (ISO string)
+   * @param startDate - Start date for filtering (ISO string YYYY-MM-DD)
+   * @param endDate - End date for filtering (ISO string YYYY-MM-DD)
    */
   getProfessionalAppointments: async (
     professionalId: string,
     startDate?: string,
     endDate?: string
   ): Promise<AppointmentDTO[]> => {
-    // TODO: Implement when backend is ready
-    // const params = new URLSearchParams();
-    // if (startDate) params.append('startDate', startDate);
-    // if (endDate) params.append('endDate', endDate);
-    // const response = await apiClient.get<AppointmentsListResponseDTO>(
-    //   `/appointments/professional/${professionalId}?${params.toString()}`
-    // );
-    // return response.data.data.appointments;
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
     
-    // Placeholder: return empty array
-    return [];
+    const response = await apiClient.get<AppointmentsListResponseDTO>(
+      `/appointments/professional/${professionalId}?${params.toString()}`
+    );
+    return response.data.data.appointments;
   },
 
   /**
-   * Get appointments for a specific date range (placeholder)
+   * Get appointments for a specific date
+   * Optimized endpoint for checking availability on a single date
    * @param professionalId - The professional's ID
    * @param date - Date to check (ISO string YYYY-MM-DD)
    */
@@ -44,30 +42,23 @@ export const appointmentsApi = {
     professionalId: string,
     date: string
   ): Promise<AppointmentDTO[]> => {
-    // TODO: Implement when backend is ready
-    // const response = await apiClient.get<AppointmentsListResponseDTO>(
-    //   `/appointments/professional/${professionalId}?date=${date}`
-    // );
-    // return response.data.data.appointments;
-    
-    // Placeholder: return empty array
-    return [];
+    const response = await apiClient.get<AppointmentsListResponseDTO>(
+      `/appointments/professional/${professionalId}?date=${date}`
+    );
+    return response.data.data.appointments;
   },
 
   /**
-   * Create a new appointment (placeholder)
+   * Create a new appointment
+   * @param data - Appointment creation data
    */
   createAppointment: async (
     data: CreateAppointmentRequestDTO
   ): Promise<AppointmentDTO> => {
-    // TODO: Implement when backend is ready
-    // const response = await apiClient.post<AppointmentResponseDTO>(
-    //   '/appointments',
-    //   data
-    // );
-    // return response.data.data;
-    
-    // Placeholder: throw error to indicate not implemented
-    throw new Error('Appointment creation not yet implemented');
+    const response = await apiClient.post<AppointmentResponseDTO>(
+      '/appointments',
+      data
+    );
+    return response.data.data;
   },
 };

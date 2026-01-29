@@ -7,4 +7,5 @@ export { BookingErrorState } from './BookingErrorState';
 export { ProfessionalInfoCard } from './ProfessionalInfoCard';
 export { BookingEmptyState } from './BookingEmptyState';
 export { BookingPageHeader } from './BookingPageHeader';
+export { AppointmentConfirmationDialog } from './AppointmentConfirmationDialog';
 

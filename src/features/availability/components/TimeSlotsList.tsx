@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { formatTimeDisplay } from '@/shared/dtos/availability.dto';
 import type { TimeSlotDTO } from '@/shared/dtos/availability.dto';
@@ -7,6 +8,7 @@ import {
   generateTimeSlotsFromRanges,
   filterAvailableTimeSlots,
 } from '@/lib/availability-utils';
+import { AppointmentConfirmationDialog } from './AppointmentConfirmationDialog';
 
 interface TimeSlotsListProps {
   selectedDate: Date;
@@ -14,6 +16,9 @@ interface TimeSlotsListProps {
   selectedSlot: TimeSlotDTO | null;
   onSlotSelect: (slot: TimeSlotDTO) => void;
   appointments?: AppointmentDTO[]; // Optional: appointments to mark slots as occupied
+  onConfirmBooking?: (slot: TimeSlotDTO) => void;
+  professionalName?: string;
+  isLoading?: boolean;
 }
 
 export function TimeSlotsList({
@@ -22,7 +27,12 @@ export function TimeSlotsList({
   selectedSlot,
   onSlotSelect,
   appointments = [],
+  onConfirmBooking,
+  professionalName,
+  isLoading = false,
 }: TimeSlotsListProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
   const dayName = selectedDate.toLocaleDateString('es-ES', { weekday: 'long' });
   const dateStr = selectedDate.toLocaleDateString('es-ES', {
     day: 'numeric',
@@ -39,6 +49,11 @@ export function TimeSlotsList({
   const occupiedSlots = allSlots.filter(
     (slot) => !availableSlots.includes(slot)
   );
+  
+  // Check if selected slot is available (not occupied)
+  const isSelectedSlotAvailable = selectedSlot 
+    ? availableSlots.includes(selectedSlot.startTime)
+    : false;
 
   // Calculate end time for a selected slot (1 hour after start time)
   const calculateEndTime = (startTime: string): string => {
@@ -59,6 +74,19 @@ export function TimeSlotsList({
     );
   };
 
+  const handleConfirmClick = () => {
+    if (selectedSlot && isSelectedSlotAvailable) {
+      setIsDialogOpen(true);
+    }
+  };
+
+  const handleDialogConfirm = () => {
+    if (selectedSlot && onConfirmBooking) {
+      onConfirmBooking(selectedSlot);
+      setIsDialogOpen(false);
+    }
+  };
+
   return (
     <div className="w-full">
       <div className="mb-4">
@@ -75,50 +103,97 @@ export function TimeSlotsList({
           No hay horarios disponibles para este día.
         </p>
       ) : (
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:flex md:flex-col">
-          {/* Available slots */}
-          {availableSlots.map((time) => {
-            const isSelected = selectedSlot?.startTime === time;
-            const containingRange = findContainingRange(time);
+        <>
+          <div className="space-y-2">
+            {/* Available slots */}
+            {availableSlots.map((time) => {
+              const isSelected = selectedSlot?.startTime === time;
+              const containingRange = findContainingRange(time);
 
-            return (
+              return (
+                <div
+                  key={time}
+                  className={cn(
+                    'flex gap-2 transition-all duration-300 w-full',
+                    isSelected ? 'flex-row' : 'flex-col sm:flex-row'
+                  )}
+                >
+                  <Button
+                    type="button"
+                    variant={isSelected ? 'default' : 'outline'}
+                    onClick={() => {
+                      if (containingRange) {
+                        // Calculate end time as 1 hour after start time
+                        const endTime = calculateEndTime(time);
+                        onSlotSelect({
+                          startTime: time,
+                          endTime,
+                        });
+                      }
+                    }}
+                    className={cn(
+                      'h-auto min-h-[44px] py-2 text-sm transition-all duration-300',
+                      isSelected 
+                        ? 'bg-primary text-primary-foreground flex-1' 
+                        : 'w-full'
+                    )}
+                  >
+                    {formatTimeDisplay(time)}
+                  </Button>
+                  
+                  {/* Confirm button - appears to the right of selected slot with animation */}
+                  {isSelected && isSelectedSlotAvailable && onConfirmBooking && (
+                    <Button
+                      type="button"
+                      onClick={handleConfirmClick}
+                      disabled={isLoading}
+                      className={cn(
+                        'min-h-[44px] flex-1',
+                        'animate-in fade-in slide-in-from-right-2',
+                        'duration-300 ease-out'
+                      )}
+                      size="default"
+                    >
+                      {isLoading ? 'Confirmando...' : 'Confirmar'}
+                    </Button>
+                  )}
+                </div>
+              );
+            })}
+
+            {/* Occupied slots (disabled) - improved styling */}
+            {occupiedSlots.map((time) => (
               <Button
                 key={time}
                 type="button"
-                variant={isSelected ? 'default' : 'outline'}
-                onClick={() => {
-                  if (containingRange) {
-                    // Calculate end time as 1 hour after start time
-                    const endTime = calculateEndTime(time);
-                    onSlotSelect({
-                      startTime: time,
-                      endTime,
-                    });
-                  }
-                }}
+                variant="outline"
+                disabled
                 className={cn(
-                  'h-auto min-h-[44px] py-2 text-sm',
-                  isSelected && 'bg-primary text-primary-foreground'
+                  'h-auto min-h-[44px] py-2 text-sm w-full',
+                  'bg-muted/50 text-muted-foreground',
+                  'border-muted-foreground/20',
+                  'cursor-not-allowed opacity-75'
                 )}
               >
-                {formatTimeDisplay(time)}
+                {formatTimeDisplay(time)} (Ocupado)
               </Button>
-            );
-          })}
+            ))}
+          </div>
 
-          {/* Occupied slots (disabled) */}
-          {occupiedSlots.map((time) => (
-            <Button
-              key={time}
-              type="button"
-              variant="outline"
-              disabled
-              className="h-auto min-h-[44px] py-2 text-sm opacity-50 cursor-not-allowed"
-            >
-              {formatTimeDisplay(time)} (Ocupado)
-            </Button>
-          ))}
-        </div>
+          {/* Confirmation dialog */}
+          {selectedSlot && (
+            <AppointmentConfirmationDialog
+              open={isDialogOpen}
+              onOpenChange={setIsDialogOpen}
+              onConfirm={handleDialogConfirm}
+              date={selectedDate}
+              startTime={selectedSlot.startTime}
+              endTime={selectedSlot.endTime}
+              professionalName={professionalName}
+              isLoading={isLoading}
+            />
+          )}
+        </>
       )}
     </div>
   );
