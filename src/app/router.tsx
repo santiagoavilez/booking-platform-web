@@ -10,6 +10,7 @@ import SignupPage from '@/features/auth/pages/signup/page';
 import HomePage from '@/features/home/pages/HomePage';
 import AvailabilityPage from '@/features/availability/pages/AvailabilityPage';
 import MyAppointmentsPage from '@/features/appointments/pages/MyAppointmentsPage';
+import SearchProfessionalsPage from '@/features/professionals/pages/SearchProfessionalsPage';
 
 // Public pages
 import ProfessionalBookingPage from '@/features/availability/pages/ProfessionalBookingPage';
@@ -27,8 +28,8 @@ import NotFoundPage from '@/app/pages/NotFoundPage';
  *
  * - Protected routes (AuthGuard): Require authentication
  *   - / (dashboard)
- *   - /professionals (coming soon)
- *   - /appointments (coming soon)
+ *   - /professionals
+ *   - /appointments
  */
 const router = createBrowserRouter([
   // Public routes - Only accessible when NOT authenticated
@@ -68,11 +69,10 @@ const router = createBrowserRouter([
         path: '/appointments',
         element: <MyAppointmentsPage />,
       },
-      // Add more protected routes here:
-      // {
-      //   path: '/professionals',
-      //   element: <ProfessionalsPage />,
-      // },
+      {
+        path: '/professionals',
+        element: <SearchProfessionalsPage />,
+      },
     ],
   },
 

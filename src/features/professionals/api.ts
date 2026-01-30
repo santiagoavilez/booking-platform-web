@@ -13,6 +13,8 @@ export interface GetProfessionalsParams {
 export interface GetProfessionalsResult {
   professionals: ProfessionalDTO[];
   total: number;
+  totalPages: number;
+  page: number;
 }
 
 /**
@@ -36,9 +38,12 @@ export const professionalsApi = {
     );
 
     const data = response.data.data;
+    const items = data?.items ?? [];
     return {
-      professionals: data?.professionals ?? [],
+      professionals: items,
       total: data?.total ?? 0,
+      totalPages: data?.totalPages ?? 1,
+      page: data?.page ?? params.page,
     };
   },
 };
