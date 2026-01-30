@@ -3,10 +3,26 @@
  * Placeholder structure for future booking functionality
  */
 
+/** Nested professional info returned by list endpoints */
+export interface AppointmentProfessionalDTO {
+  firstName: string;
+  lastName: string;
+}
+
+/** Nested client info returned by list endpoints */
+export interface AppointmentClientDTO {
+  firstName: string;
+  lastName: string;
+}
+
 export interface AppointmentDTO {
   id: string;
   professionalId: string;
   clientId: string;
+  /** Populated by API when listing appointments */
+  professional?: AppointmentProfessionalDTO;
+  /** Populated by API when listing appointments */
+  client?: AppointmentClientDTO;
   date: string; // ISO date string (YYYY-MM-DD)
   startTime: string; // Time in HH:mm format
   endTime: string; // Time in HH:mm format

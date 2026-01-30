@@ -10,6 +10,7 @@ import {
   filterAvailableTimeSlots,
 } from '@/lib/availability-utils';
 import { AppointmentConfirmationDialog } from './AppointmentConfirmationDialog';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface TimeSlotsListProps {
   selectedDate: Date;
@@ -35,7 +36,7 @@ export function TimeSlotsList({
   isLoadingAppointments = false,
 }: TimeSlotsListProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
+
   const dayName = selectedDate.toLocaleDateString('es-ES', { weekday: 'long' });
   const dateStr = selectedDate.toLocaleDateString('es-ES', {
     day: 'numeric',
@@ -44,12 +45,12 @@ export function TimeSlotsList({
 
   // Generate all time slots from ranges
   const allSlots = generateTimeSlotsFromRanges(timeSlots);
-  
+
   // Filter out occupied slots (for per-slot availability check)
   const availableSlots = filterAvailableTimeSlots(allSlots, selectedDate, appointments);
 
   // Check if selected slot is available (not occupied)
-  const isSelectedSlotAvailable = selectedSlot 
+  const isSelectedSlotAvailable = selectedSlot
     ? availableSlots.includes(selectedSlot.startTime)
     : false;
 
@@ -98,10 +99,16 @@ export function TimeSlotsList({
 
       {isLoadingAppointments ? (
         <div className="flex flex-col items-center justify-center gap-3 py-8">
-          <Loader2 className="size-8 animate-spin text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">
-            Cargando horarios...
-          </p>
+          {/* 5 skeleton loaders */}
+          <div className="flex flex-col items-center justify-center gap-2 w-full">
+            <Skeleton className="w-full h-10" />
+            <Skeleton className="w-full h-10" />
+            <Skeleton className="w-full h-10" />
+            <Skeleton className="w-full h-10" />
+            <Skeleton className="w-full h-10" /> 
+            <p className="text-sm text-muted-foreground">Cargando horarios...</p>           
+            </div>
+
         </div>
       ) : allSlots.length === 0 ? (
         <p className="text-sm text-muted-foreground">

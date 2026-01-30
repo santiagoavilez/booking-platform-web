@@ -35,3 +35,8 @@ export type {
   AppointmentResponseDTO,
   AppointmentsListResponseDTO,
 } from './appointment.dto';
+
+export type {
+  ProfessionalDTO,
+  ProfessionalsListResponseDTO,
+} from './professional.dto';
