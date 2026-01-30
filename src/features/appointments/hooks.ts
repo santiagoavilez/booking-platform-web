@@ -54,6 +54,23 @@ export function useCreateAppointment() {
       queryClient.invalidateQueries({ 
         queryKey: ['availability', appointment.professionalId] 
       });
+
+      // Invalidate my appointments to refresh the list
+      queryClient.invalidateQueries({ 
+        queryKey: ['appointments', 'my'] 
+      });
     },
+  });
+}
+
+/**
+ * Hook to fetch appointments for the authenticated user (as client)
+ * Follows Clean Architecture: Application layer for business logic orchestration
+ */
+export function useMyAppointments() {
+  return useQuery<AppointmentDTO[]>({
+    queryKey: ['appointments', 'my'],
+    queryFn: () => appointmentsApi.getMyAppointments(),
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }

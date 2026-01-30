@@ -9,6 +9,7 @@ import SignupPage from '@/features/auth/pages/signup/page';
 // Authenticated pages
 import HomePage from '@/features/home/pages/HomePage';
 import AvailabilityPage from '@/features/availability/pages/AvailabilityPage';
+import MyAppointmentsPage from '@/features/appointments/pages/MyAppointmentsPage';
 
 // Public pages
 import ProfessionalBookingPage from '@/features/availability/pages/ProfessionalBookingPage';
@@ -63,14 +64,14 @@ const router = createBrowserRouter([
         path: '/availability',
         element: <AvailabilityPage />,
       },
+      {
+        path: '/appointments',
+        element: <MyAppointmentsPage />,
+      },
       // Add more protected routes here:
       // {
       //   path: '/professionals',
       //   element: <ProfessionalsPage />,
-      // },
-      // {
-      //   path: '/appointments',
-      //   element: <AppointmentsPage />,
       // },
     ],
   },

@@ -4,6 +4,7 @@ import type {
   AppointmentResponseDTO,
   AppointmentsListResponseDTO,
   CreateAppointmentRequestDTO,
+  MyAppointmentsResponseDTO,
 } from '@/shared/dtos/appointment.dto';
 
 /**
@@ -29,7 +30,8 @@ export const appointmentsApi = {
     const response = await apiClient.get<AppointmentsListResponseDTO>(
       `/appointments/professional/${professionalId}?${params.toString()}`
     );
-    return response.data.data.appointments;
+    const raw = response.data.data;
+    return (Array.isArray(raw) ? raw : raw?.appointments) ?? [];
   },
 
   /**
@@ -45,7 +47,8 @@ export const appointmentsApi = {
     const response = await apiClient.get<AppointmentsListResponseDTO>(
       `/appointments/professional/${professionalId}?date=${date}`
     );
-    return response.data.data.appointments;
+    const raw = response.data.data;
+    return (Array.isArray(raw) ? raw : raw?.appointments) ?? [];
   },
 
   /**
@@ -58,6 +61,17 @@ export const appointmentsApi = {
     const response = await apiClient.post<AppointmentResponseDTO>(
       '/appointments',
       data
+    );
+    return response.data.data;
+  },
+
+  /**
+   * Get appointments for the authenticated user (as client)
+   * Returns appointments for the current user
+   */
+  getMyAppointments: async (): Promise<AppointmentDTO[]> => {
+    const response = await apiClient.get<MyAppointmentsResponseDTO>(
+      '/appointments'
     );
     return response.data.data;
   },

@@ -44,10 +44,8 @@ export default function ProfessionalBookingPage() {
 
   // Fetch appointments for selected date
   const selectedDateStr = selectedDate ? formatDateString(selectedDate) : '';
-  const { data: appointments = [] } = useAppointmentsByDate(
-    userId || '',
-    selectedDateStr
-  );
+  const { data: appointments = [], isLoading: isAppointmentsLoading } =
+    useAppointmentsByDate(userId || '', selectedDateStr);
 
   // Create appointment mutation
   const createAppointment = useCreateAppointment();
@@ -223,6 +221,7 @@ export default function ProfessionalBookingPage() {
                       availability.professionalLastName
                     )}
                     isLoading={createAppointment.isPending}
+                    isLoadingAppointments={isAppointmentsLoading}
                   />
                 ) : selectedDate ? (
                   <BookingEmptyState

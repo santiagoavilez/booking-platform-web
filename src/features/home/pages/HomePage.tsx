@@ -143,11 +143,14 @@ export default function HomePage() {
                                 </>
                             )}
 
-                            <Card className="cursor-not-allowed opacity-60">
+                            <Card
+                                className="cursor-pointer transition-all hover:border-primary/50 hover:shadow-md"
+                                onClick={() => navigate('/appointments')}
+                            >
                                 <CardContent className="flex flex-col items-center justify-center p-6 text-center">
-                                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                                         <svg
-                                            className="h-6 w-6 text-muted-foreground"
+                                            className="h-6 w-6 text-primary"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
@@ -160,8 +163,8 @@ export default function HomePage() {
                                             />
                                         </svg>
                                     </div>
-                                    <p className="font-medium">Mis citas próximamente</p>
-                                    <p className="text-xs text-muted-foreground">Próximamente</p>
+                                    <p className="font-medium">Mis citas</p>
+                                    <p className="text-xs text-muted-foreground">Ver mis citas programadas</p>
                                 </CardContent>
                             </Card>
 

@@ -10,9 +10,9 @@ export interface AppointmentDTO {
   date: string; // ISO date string (YYYY-MM-DD)
   startTime: string; // Time in HH:mm format
   endTime: string; // Time in HH:mm format
-  status: AppointmentStatus;
-  createdAt: string; // ISO datetime string
-  updatedAt: string; // ISO datetime string
+  status?: AppointmentStatus; // Optional - may not be returned by all endpoints
+  createdAt?: string; // ISO datetime string - optional
+  updatedAt?: string; // ISO datetime string - optional
 }
 
 export const AppointmentStatus = {
@@ -51,4 +51,12 @@ export interface AppointmentsListResponseDTO {
   data: {
     appointments: AppointmentDTO[];
   };
+}
+
+/**
+ * Response from GET /appointments (my appointments)
+ */
+export interface MyAppointmentsResponseDTO {
+  success: boolean;
+  data: AppointmentDTO[];
 }

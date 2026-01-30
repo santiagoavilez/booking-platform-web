@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatTimeDisplay } from '@/shared/dtos/availability.dto';
 import type { TimeSlotDTO } from '@/shared/dtos/availability.dto';
@@ -19,6 +20,7 @@ interface TimeSlotsListProps {
   onConfirmBooking?: (slot: TimeSlotDTO) => void;
   professionalName?: string;
   isLoading?: boolean;
+  isLoadingAppointments?: boolean;
 }
 
 export function TimeSlotsList({
@@ -30,6 +32,7 @@ export function TimeSlotsList({
   onConfirmBooking,
   professionalName,
   isLoading = false,
+  isLoadingAppointments = false,
 }: TimeSlotsListProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
@@ -42,14 +45,9 @@ export function TimeSlotsList({
   // Generate all time slots from ranges
   const allSlots = generateTimeSlotsFromRanges(timeSlots);
   
-  // Filter out occupied slots
+  // Filter out occupied slots (for per-slot availability check)
   const availableSlots = filterAvailableTimeSlots(allSlots, selectedDate, appointments);
-  
-  // Get occupied slots for display
-  const occupiedSlots = allSlots.filter(
-    (slot) => !availableSlots.includes(slot)
-  );
-  
+
   // Check if selected slot is available (not occupied)
   const isSelectedSlotAvailable = selectedSlot 
     ? availableSlots.includes(selectedSlot.startTime)
@@ -98,15 +96,44 @@ export function TimeSlotsList({
         </p>
       </div>
 
-      {availableSlots.length === 0 && occupiedSlots.length === 0 ? (
+      {isLoadingAppointments ? (
+        <div className="flex flex-col items-center justify-center gap-3 py-8">
+          <Loader2 className="size-8 animate-spin text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">
+            Cargando horarios...
+          </p>
+        </div>
+      ) : allSlots.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           No hay horarios disponibles para este día.
         </p>
       ) : (
         <>
           <div className="space-y-2">
-            {/* Available slots */}
-            {availableSlots.map((time) => {
+            {/* Slots in chronological order: available (clickable) or occupied (disabled) */}
+            {allSlots.map((time) => {
+              const isOccupied = !availableSlots.includes(time);
+
+              if (isOccupied) {
+                return (
+                  <Button
+                    key={time}
+                    type="button"
+                    variant="outline"
+                    disabled
+                    title="Este horario está ocupado"
+                    className={cn(
+                      'h-auto min-h-[44px] py-2 text-sm w-full',
+                      'bg-muted/50 text-muted-foreground',
+                      'border-muted-foreground/20',
+                      'cursor-not-allowed opacity-75'
+                    )}
+                  >
+                    {formatTimeDisplay(time)} (Ocupado)
+                  </Button>
+                );
+              }
+
               const isSelected = selectedSlot?.startTime === time;
               const containingRange = findContainingRange(time);
 
@@ -123,7 +150,6 @@ export function TimeSlotsList({
                     variant={isSelected ? 'default' : 'outline'}
                     onClick={() => {
                       if (containingRange) {
-                        // Calculate end time as 1 hour after start time
                         const endTime = calculateEndTime(time);
                         onSlotSelect({
                           startTime: time,
@@ -133,15 +159,14 @@ export function TimeSlotsList({
                     }}
                     className={cn(
                       'h-auto min-h-[44px] py-2 text-sm transition-all duration-300',
-                      isSelected 
-                        ? 'bg-primary text-primary-foreground flex-1' 
+                      isSelected
+                        ? 'bg-primary text-primary-foreground flex-1'
                         : 'w-full'
                     )}
                   >
                     {formatTimeDisplay(time)}
                   </Button>
-                  
-                  {/* Confirm button - appears to the right of selected slot with animation */}
+
                   {isSelected && isSelectedSlotAvailable && onConfirmBooking && (
                     <Button
                       type="button"
@@ -160,24 +185,6 @@ export function TimeSlotsList({
                 </div>
               );
             })}
-
-            {/* Occupied slots (disabled) - improved styling */}
-            {occupiedSlots.map((time) => (
-              <Button
-                key={time}
-                type="button"
-                variant="outline"
-                disabled
-                className={cn(
-                  'h-auto min-h-[44px] py-2 text-sm w-full',
-                  'bg-muted/50 text-muted-foreground',
-                  'border-muted-foreground/20',
-                  'cursor-not-allowed opacity-75'
-                )}
-              >
-                {formatTimeDisplay(time)} (Ocupado)
-              </Button>
-            ))}
           </div>
 
           {/* Confirmation dialog */}
