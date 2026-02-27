@@ -21,6 +21,24 @@ Interfaz de usuario para la plataforma de reservas que permite a usuarios y prof
 pnpm install
 ```
 
+## Docker (solo Docker, sin Node)
+
+La app se puede ejecutar solo con Docker. No hace falta tener Node ni pnpm instalado.
+
+**Desarrollo** (Vite dev server, hot reload):
+
+- Windows (PowerShell): `.\scripts\start-dev.ps1`
+- Linux/macOS: `./scripts/start-dev.sh`
+- App: http://localhost:5173
+
+**Producción** (build + nginx):
+
+- Windows (PowerShell): `.\scripts\start-prod.ps1`
+- Linux/macOS: `./scripts/start-prod.sh`
+- App: http://localhost:80
+
+Si no existen `.env.dev` o `.env.prod`, los scripts los crean desde `.env.dev.example` y `.env.prod.example`. Edita `VITE_API_URL` en `.env.dev` / `.env.prod` según tu API.
+
 ## Scripts
 
 ```bash

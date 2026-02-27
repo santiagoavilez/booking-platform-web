@@ -1,0 +1,11 @@
+node_modules
+dist
+.git
+.env
+.env.local
+.env.dev
+.env.prod
+*.log
+.vscode
+.idea
+.cursor
