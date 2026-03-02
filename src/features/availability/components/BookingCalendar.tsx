@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { DayOfWeek } from '@/shared/dtos/availability.dto';
 import { formatDateString } from '@/lib/availability-utils';
 
 interface BookingCalendarProps {
